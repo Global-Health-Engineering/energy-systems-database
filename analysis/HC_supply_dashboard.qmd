@@ -1,0 +1,1174 @@
+---
+title: "Electricity Supply"
+author: "Gian Teufen"
+format: 
+  dashboard:
+    nav-buttons: []
+---
+
+```{r}
+#| echo: false
+
+library(tidyverse)
+library(dplyr)
+library(googlesheets4)
+library(readr)
+library(hms)
+library(scales)
+library(ggthemes)
+library(forcats)
+library(ggplot2)
+library(ggExtra)
+library(viridis)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(sf)
+library(terra)
+library(dplyr)
+library(spData)
+library(spDataLarge)
+library(tmap)    # for static and interactive maps
+library(leaflet) # for interactive maps
+library(malawi)
+library(ggridges)
+library(gt) #Presentation-Ready Display Tables
+library(gtsummary) #publication-ready analytical and summary tables using the R programming language
+library(knitr) #general-purpose tool for dynamic report generation in R using Literate Programming techniques.
+library(DT) #Data objects in R can be rendered as HTML tables using the JavaScript library 'DataTables'
+library(lubridate) #tools to make dates parsing and manipulation easier
+library(kableExtra)
+library(patchwork)
+
+
+
+df <- read_rds("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/HC_EnergySystems.rds")
+
+kobo_questionnaire <- read_rds("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Kobo_Questionnaire.rds")
+
+combined <- read_rds("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Combined_Questionnaire_Systems.rds")
+```
+
+# Energy Stacking
+
+<!-- ## Row {height="30%"} -->
+
+<!-- ```{r} -->
+
+<!-- #| content: valuebox -->
+
+<!-- #| title: "Surveyed Facilities" -->
+
+<!-- list( -->
+
+<!--   icon = "bar-chart", -->
+
+<!--   color = "primary", -->
+
+<!--   value = length(unique(df$facility)) -->
+
+<!-- ) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- #| content: valuebox -->
+
+<!-- #| title: "Surveyed Rooms" -->
+
+<!-- list( -->
+
+<!--   icon = "bar-chart", -->
+
+<!--   color = "secondary", -->
+
+<!--   value = nrow(rooms) -->
+
+<!-- ) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- #| content: valuebox -->
+
+<!-- #| title: "Surveyed Devices" -->
+
+<!-- list( -->
+
+<!--   icon = "bar-chart", -->
+
+<!--   color = "orange", -->
+
+<!--   value = nrow(devices) -->
+
+<!-- ) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- #| content: valuebox -->
+
+<!-- #| title: "% fully functional" -->
+
+<!-- list( -->
+
+<!--   icon = "percent", -->
+
+<!--   color = "green", -->
+
+<!--   value = format(100*sum(devices$functionality == "fully functional")/nrow(devices), digits = 3) -->
+
+<!-- ) -->
+
+<!-- ``` -->
+
+<!-- ## Row {orientation="columns"} -->
+
+## Row {.tabset}
+
+### Introduction Supply Mix {.tabset}
+
+```{r}
+#| title: "Facility Overview"
+
+# 1. Count systems per facility and assign Facility A, B, C...
+facility_ranked <- df|> 
+  count(facility_name, name = "system_count") |> 
+  arrange(desc(system_count)) |>    # highest first
+  mutate(
+    facility_clean = paste0("Facility ", LETTERS[row_number()])
+  )
+
+# 2. Join back and order factor levels so Facility A is on top in coord_flip()
+df_plot <- df |> 
+  left_join(facility_ranked, by = "facility_name") |> 
+  mutate(
+    facility_clean = factor(facility_clean, 
+                            levels = rev(facility_ranked$facility_clean))
+  ) 
+
+
+type_levels <- c(
+  "Generator",
+  "Solar",
+  "Solar, Battery",
+  "Solar, Battery, Inverter",
+  "Grid"
+)
+
+df_plot <- df_plot |>
+  mutate(
+    type = factor(type, levels = type_levels)
+  )
+
+
+# 3. Plot--------------------------------
+ggplot(df_plot, aes(x = facility_clean, fill = type)) +
+  geom_bar() +
+  geom_boxplot(
+    data = facility_ranked,
+    aes(y = system_count),   # put boxplot on the count axis
+    inherit.aes = FALSE,
+    width = 0.8,
+  ) +
+  geom_text(
+  aes(x = facility_clean, y = system_count, label = system_count),
+  hjust = -0.3, size = 3) +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(0, 10, 2)) +
+  labs(x = NULL,
+       y = "Energy System Count",
+       fill = "Energy System Category") +
+  theme_minimal() +
+  scale_fill_colorblind() 
+
+#-----------------------------------------
+df_plot_functional <- df_plot |> 
+  filter(functional_now == "Yes")
+
+ggplot(df_plot_functional, aes(x = facility_clean, fill = type)) +
+  geom_bar() +
+  geom_boxplot(
+    data = facility_ranked,
+    aes(y = system_count),   # put boxplot on the count axis
+    inherit.aes = FALSE,
+    width = 0.8,
+  ) +
+  geom_text(
+  aes(x = facility_clean, y = system_count, label = system_count),
+  hjust = -0.3, size = 3) +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(0, 10, 2)) +
+  labs(x = NULL,
+       y = "Energy System Count",
+       fill = "Energy System Category") +
+  theme_minimal() +
+  scale_fill_colorblind() 
+
+```
+
+```{r}
+#| title: "Literature Comparison"
+
+literature_comparison <- combined |> 
+
+  mutate(
+    energy_quality = case_when(
+    #outage_frequency %in% c("Every week", "Every two weeks", "Every ") ~ "Stable grid",
+    is.na(main_elec) ~ "Non-grid: No electricity",
+    main_elec %in% "Solar" ~ "Non-grid: Off-grid",
+    type %in% "Solar, Battery, Inverter" ~ "Unstable Grid: Interrupted Grid with Back-up",
+    TRUE ~ "Unstable Grid: Interrupted Grid without Back-up"
+  )) |>
+  group_by(facility_id) |>
+  mutate(
+    energy_quality = case_when(
+      any(type %in% "Solar, Battery, Inverter", na.rm = TRUE) ~
+        "Unstable Grid: Interrupted Grid with Back-up")
+  )
+
+
+literature_comparison <- combined |>
+  group_by(facility_id) |>
+  mutate(
+    energy_quality = case_when(
+
+      # Off-grid FIRST (must come before override)
+      main_elec == "Solar" ~
+        "Non-grid: Off-grid",
+
+      is.na(main_elec) ~
+        "Non-grid: No electricity",
+
+      # Facility-level override ONLY for grid-connected systems
+      any(type == "Solar, Battery, Inverter", na.rm = TRUE) &
+        main_elec != "Solar" ~
+        "Unstable Grid: Interrupted Grid with Back-up",
+
+      TRUE ~
+        "Unstable Grid: Interrupted Grid without Back-up"
+    )
+  ) |>
+  ungroup()
+
+
+
+
+
+
+categories <- c(
+  "Non-grid: No electricity",
+  "Non-grid: Off-grid",
+  "Stable grid: Uninterrupted Grid with Back-up",
+  "Unstable Grid: Interrupted Grid with Back-up",
+  "Unstable Grid: Interrupted Grid without Back-up",
+  "Unstable Grid: Uninterrupted Grid without Back-up"
+)
+
+categories <- c(
+  "Unstable Grid: Uninterrupted Grid without Back-up",
+  "Unstable Grid: Interrupted Grid without Back-up",
+  "Unstable Grid: Interrupted Grid with Back-up",
+  "Stable grid: Uninterrupted Grid with Back-up",
+  "Non-grid: Off-grid",
+  "Non-grid: No electricity"
+)
+
+third_pillar <- literature_comparison |>
+  count(energy_quality, name = "value") |>
+  mutate(
+    value = value / sum(value) * 100,
+    year = "2025",
+    category = energy_quality
+  ) |>
+  select(year, category, value)
+
+
+
+
+#--------------
+
+
+suhlrie_hhfa <- tribble(
+  ~year,        ~category, ~value,
+  "2013/2014",  categories[1], 7.17,
+  "2013/2014",  categories[2], 33.29,
+  "2013/2014",  categories[3], 4.67,
+  "2013/2014",  categories[4], 9.86,
+  "2013/2014",  categories[5], 30.34,
+  "2013/2014",  categories[6], 15,
+
+  "2018/2019",  categories[1], 1.07,
+  "2018/2019",  categories[2], 29.48,
+  "2018/2019",  categories[3], 23.09,
+  "2018/2019",  categories[4], 20.78,
+  "2018/2019",  categories[5], 20.07,
+  "2018/2019",  categories[6], 6,
+
+  # third pillar with random values
+  "2025",  categories[1], 1/20*100,
+  "2025",  categories[2], 8/20*100,
+  "2025",  categories[4], 7/20*100,
+  "2025",  categories[5], 4/20*100)
+
+
+colors <- c(
+  "Unstable Grid: Uninterrupted Grid without Back-up" = "#5A82B9",
+  "Unstable Grid: Interrupted Grid without Back-up"   = "#B24641",
+  "Unstable Grid: Interrupted Grid with Back-up"      = "#9BB650",
+  "Stable grid: Uninterrupted Grid with Back-up"      = "#7263AC",
+  "Non-grid: Off-grid"                                 = "#63C3D1",
+  "Non-grid: No electricity"                          = "#F29C38"
+)
+
+
+ggplot(suhlrie_hhfa, aes(x = year, y = value, fill = category)) +
+  geom_col(width = 0.65) +
+  geom_text(aes(label = round(value, 2)),
+            position = position_stack(vjust = 0.5),
+            color = "black", size = 3) +
+  scale_fill_manual(values = colors) +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  labs(x = NULL, y = NULL, fill = "Energy Supply Category") +
+  theme_minimal() +
+  theme(
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+```
+
+### Functionality {.tabset}
+
+```{r}
+#| title: "Functionality Overview"
+
+
+# -----------------------------
+# 1) Facility plot (counts)
+# -----------------------------
+facility_ranked <- df |>
+  count(facility_name, name = "system_count") |>
+  arrange(desc(system_count)) |>
+  mutate(facility_clean = paste0("Facility ", LETTERS[row_number()]))
+
+functionality_overview <- df |>
+  left_join(facility_ranked, by = "facility_name") |>
+  filter(!is.na(functional_now))
+
+p_facility <-
+  ggplot(functionality_overview,
+         aes(x = fct_rev(fct_infreq(facility_clean)), fill = functional_now)) +
+  geom_bar() +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(0, 10, 2)) +
+  labs(x = NULL, y = "Energy System Count", fill = "Functionality", tag = "(c)") +
+  theme_minimal() +
+  scale_fill_colorblind()
+
+# -----------------------------
+# 2) Type plot (counts, horizontal)  + labels
+# -----------------------------
+functionality_supply_categories <- df |>
+  filter(!is.na(functional_now))
+
+p_type <-
+  ggplot(functionality_supply_categories,
+         aes(x = fct_rev(fct_infreq(type)), fill = functional_now)) +
+  geom_bar() +
+  geom_text(
+    stat = "count",
+    aes(label = after_stat(count)),
+    position = position_stack(vjust = 0.5),
+    color = "white",
+    fontface = "bold",
+    size = 3
+  ) +
+  coord_flip() +
+  labs(x = NULL, y = "Energy System Count", fill = "Functionality", tag = "(d)") +
+  theme_minimal() +
+  scale_fill_colorblind() +
+  theme(legend.position = "none")
+
+# -----------------------------
+# 3) Overall proportions (single bar)
+# -----------------------------
+overall_prop <- functionality_overview %>%
+  count(functional_now) %>%
+  mutate(prop = n / sum(n))
+
+p_overall <-
+  ggplot(overall_prop,
+         aes(x = "All\nFacilities", y = prop, fill = functional_now)) +
+  geom_col(width = 0.8) +
+  coord_flip() +
+  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
+  labs(x = NULL, y = NULL, fill = "Functionality", tag = "(a)") +
+  theme_minimal() +
+  scale_fill_colorblind() +
+  theme(legend.position = "none")
+
+# -----------------------------
+# 4) Time dependency (percent + count)
+# -----------------------------
+breaks <- seq(2000, 2027, by = 3)
+year_labels <- c(
+  "2000–2002","2003–2005","2006–2008","2009–2011","2012–2014",
+  "2015–2017","2018–2020","2021–2023","2024–2025"
+)
+
+functionality_over_time <- df |>
+  filter(!is.na(functional_now),
+         installation_year != -99,
+         type != "Grid") |>
+  mutate(installation_year = as.numeric(installation_year)) |>
+  filter(!is.na(installation_year)) |>
+  mutate(
+    year_bin = cut(
+      installation_year,
+      breaks = breaks,
+      right = FALSE,
+      include.lowest = TRUE,
+      labels = year_labels
+    )
+  )
+
+p_time_pct <-
+  ggplot(functionality_over_time, aes(x = year_bin, fill = functional_now)) +
+  geom_bar(position = "fill") +
+  geom_text(
+    stat = "count",
+    aes(label = after_stat(count)),
+    position = position_fill(vjust = 0.5),
+    color = "white",
+    fontface = "bold",
+    size = 3
+  ) +
+  labs(x = "Installation Year", y = NULL, fill = "Functionality", tag = "(b)") +
+  theme_minimal() +
+  scale_fill_colorblind() +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_discrete(drop = FALSE) +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 30, hjust = 1)
+  )
+   
+
+
+
+
+
+# -----------------------------
+# 5) Arrange ALL plots nicely (single output)
+# -----------------------------
+  (p_overall | p_time_pct) /
+  (p_facility | p_type) +
+  plot_layout(heights = c(3, 6), guides = "collect") +
+  plot_annotation(title = NULL) &
+  theme(legend.position = "bottom")
+
+
+```
+
+```{r}
+#| title: "Grid Reliability"
+
+grid_reliability <- combined |> 
+  distinct(facility_id, .keep_all = TRUE) |> 
+  filter(!is.na(outage_frequency))
+
+
+freq_levels <- c(
+  "Never",
+  "Rarely",
+  "Every month",
+  "Every two weeks",
+  "Every week",
+  "Every 3-4 days",
+  "Every 2 days",
+  "Every day",
+  "Multiple times a day"
+)
+
+
+grid_reliability_plot <- grid_reliability |>
+  mutate(
+    outage_frequency = factor(
+      outage_frequency,
+      levels = freq_levels
+    )
+  )
+
+freq_map <- c(
+  "Never"               = 365,
+  "Rarely"              = 60,
+  "Every month"         = 30,
+  "Every two weeks"     = 14,
+  "Every week"          = 7,
+  "Every 3-4 days"      = 4,
+  "Every 2 days"        = 2,
+  "Every day"           = 1,
+  "Multiple times a day" = 0.5
+)
+
+
+grid_reliability_plot <- grid_reliability |>
+  mutate(
+    outage_frequency = factor(outage_frequency, levels = freq_levels),
+    freq_days = freq_map[outage_frequency] |> as.numeric()
+  )
+
+
+ggplot(grid_reliability_plot,
+       aes(x = freq_days,
+           y = outage_duration,
+           color = region,
+           shape = region)) +
+  geom_jitter(width = 0.1, height = 0.1, size = 10, alpha = 0.7) +
+  scale_x_reverse(
+    breaks = unname(freq_map),        # <- numeric only
+    labels = names(freq_map)          # <- labels
+  ) +
+  geom_boxplot(
+    data = grid_reliability_plot,
+    aes(x = max(freq_days, na.rm = TRUE) + 2, y = outage_duration),  # <- left side after reverse
+    inherit.aes = FALSE,
+    width = 0.8
+  ) +
+  scale_y_continuous(breaks = seq(0, 15, 2), limits = c(0, NA)) +
+  labs(
+    x = "How often is there a grid outage?",
+    y = "Grid Outage Duration [h]",
+    color = "Region",
+    shape = "Region"
+  ) +
+  theme_minimal() +
+  scale_color_colorblind() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+
+
+```
+
+```{r}
+#| title: "Nights without Light"
+
+systemcountvsnightsnolight <- combined |> 
+  filter(type != "Solar") |> 
+  add_count(facility_id, name = "system_count") |> 
+  distinct(facility_id, .keep_all = TRUE) |> 
+  filter(night_treatments_monthly != -99) |> 
+  mutate(dark_treatment_ratio = night_treatments_in_darkness_monthly / night_treatments_monthly * 100)
+
+ggplot(data = systemcountvsnightsnolight,
+       mapping = aes(x = system_count, 
+                     y = night_treatments_in_darkness_monthly, 
+                     color = night_treatments_monthly,
+                     shape = main_elec)) +
+  geom_jitter(width = 0.2, height = 0.3, size = 10, alpha = 0.7) +   # jittered points
+  geom_boxplot(
+    aes(x = system_count, y = -5),   # put boxplot on the count axis
+    inherit.aes = FALSE,
+    width = 3
+  ) +
+  geom_boxplot(
+    aes(x = 0, y = night_treatments_in_darkness_monthly),   # put boxplot on the count axis
+    inherit.aes = FALSE,
+    width = 0.8
+  ) +
+    scale_x_continuous(breaks = seq(0, 10, 2)) +
+  labs(x = "Energy System Count (without direct solar)",
+       y = "Monthly night treatments without light",
+       color = "Monthly night treatments",
+       shape = "Primary electricity source") +
+  theme_minimal()
+
+#------------------------------
+
+ggplot(data = systemcountvsnightsnolight,
+       mapping = aes(x = system_count, 
+                     y = dark_treatment_ratio, 
+                     color = night_treatments_monthly
+                     )) +
+  geom_jitter(width = 0.3, height = 2, size = 5, alpha = 0.9) + 
+  geom_hline(
+  yintercept = 0,
+  linetype = "dashed",
+  color = "grey50"
+  ) +
+  geom_vline(
+  xintercept = 0,
+  linetype = "dashed",
+  color = "grey50"
+  ) +
+  geom_boxplot(aes(x = system_count, y = -20),
+                   width = 10,
+                 inherit.aes = FALSE) +
+  geom_boxplot(aes(x = -1, y = dark_treatment_ratio),
+                   width = 1,
+                 inherit.aes = FALSE,) +
+  scale_x_continuous(breaks = seq(0, 12, 2)) +
+  scale_y_continuous(breaks = seq(0,100,20),
+                     labels = scales::label_percent(scale = 1)) +
+  scale_color_gradient2(
+  low = "#2166AC",
+  mid = "#CFCFC4",
+  high = "#B2182B",
+    midpoint = median(systemcountvsnightsnolight$night_treatments_monthly, na.rm = TRUE)
+                        ) +
+  labs(x = "Energy System Count (without direct solar)",
+       y = "Night Treatments without Lighting",
+       color = "Monthly Night\nTreatments [count]",
+       shape = "Primary Source") +
+  theme_minimal()
+
+
+
+
+```
+
+# Install and Forget
+
+## Row {.tabset}
+
+### Installers vs Maintainers {.tabset}
+
+```{r}
+#| title: "Installers/Funders"
+
+installers <- df |>
+  mutate(
+    funding = case_when(
+      funding %in% c("MoH", "Staff", "EGPAF") ~ "DHO/MoH/Gov",
+      is.na(funding) ~ "Unknown",
+      TRUE ~ "Donor"
+    ),
+    # Explicit factor ordering for legend and stack order
+    funding = factor(funding, levels = c("DHO/MoH/Gov", "Unknown", "Donor"))
+  )
+
+installers_plot <- ggplot(installers, aes(x = fct_rev(fct_infreq(type)), fill = funding)) +
+  geom_bar(position = position_stack(reverse = TRUE)) +
+  coord_flip() +
+  # scale_y_continuous(breaks = seq(0, 10, 2)) +
+  labs(x = NULL,
+       y = "Energy System Count",
+       fill = "Initial Funder") +
+  theme_minimal() +
+  scale_fill_viridis_d(option = "D")
+
+installers_plot
+```
+
+```{r}
+#| title: "Repair Primary"
+
+repair_primary_plot <- ggplot(df, aes(x = fct_rev(fct_infreq(type)), fill = repair_duty)) +
+  geom_bar(position = position_stack(reverse = TRUE)) +
+  coord_flip() +
+  # scale_y_continuous(breaks = seq(0, 10, 2)) +
+  labs(x = NULL,
+       y = "Energy System Count",
+       fill = "Repair Duty") +
+  theme_minimal() +
+  scale_fill_viridis_d(option = "D")
+
+repair_primary_plot
+
+
+```
+
+```{r}
+#| title: "Funder vs Maintainers"
+
+installers_plot <- installers_plot +
+  labs(
+    title = "Initial Funder",
+    fill = NULL,
+    tag = "(a)",
+    y = "                                                      Energy System Count" 
+  )
+
+repair_primary_plot <- repair_primary_plot +
+  labs(title = "Repair Primary", fill = NULL, tag = "(b)") + 
+  theme(
+    legend.position = "none",
+    axis.text.y  = element_blank(),
+    axis.title.y = element_blank(),
+    axis.title.x = element_blank()
+  )
+
+(installers_plot | repair_primary_plot) +
+  plot_layout(heights = c(3, 6), guides = "collect") +
+  plot_annotation(title = NULL) &
+  theme(legend.position = "bottom")
+
+
+```
+
+### Maintenance {.tabset}
+
+```{r}
+#| title: "Repair & Maintenance & Trained Staff on Site"
+
+
+
+staff_levels <- c("No", "Partially", "Yes")
+pm_levels <- c("Never",
+               "Sometimes but not routinely",
+               "Routinely")
+
+maintenance_count <- kobo_questionnaire |> 
+  mutate(
+    trained_staff_energy_system =
+      factor(trained_staff_energy_system, levels = staff_levels),
+    preventive_maintenance_carried_out =
+      factor(preventive_maintenance_carried_out, levels = pm_levels))
+
+
+staff_count <- maintenance_count |>
+  mutate(trained_staff_energy_system = replace_na(trained_staff_energy_system, "No")) |>
+  count(trained_staff_energy_system, name = "n")
+
+pm_count <- maintenance_count |>
+  mutate(preventive_maintenance_carried_out = replace_na(preventive_maintenance_carried_out, "Never")) |>
+  count(preventive_maintenance_carried_out, name = "n")
+
+combined_counts <- bind_rows(
+  staff_count |>
+    rename(Response = trained_staff_energy_system) |>
+    mutate(Question = "Is there a trained staff member on site?"),
+  pm_count |>
+    rename(Response = preventive_maintenance_carried_out) |>
+    mutate(Question = "Is preventive maintenance carried out on any energy system?")
+)
+
+
+
+combined_counts |>
+  gt(groupname_col = "Question") |>
+  tab_header(
+    title = "Maintenance & Repair",
+    subtitle = "Data from 20 health centres"
+  ) |>
+  cols_label(
+    Response = "",
+    n = ""
+  ) |>
+  opt_stylize(style = 1)
+
+```
+
+```{r}
+#| title: "Repair Success Rate"
+
+repair_success_rate <- combined |> 
+  filter(!is.na(repair_success))
+
+ggplot(repair_success_rate, aes(x = fct_rev(fct_infreq(type)), fill = repair_success)) +
+  geom_bar() +
+  coord_flip() +
+  # scale_y_continuous(breaks = seq(0, 10, 2)) +
+  labs(x = NULL,
+       y = "Reported System Failures",
+       fill = "Repaired") +
+  theme_minimal() +
+  scale_fill_manual(values = c("Yes" = "lightblue", "No" = "black"))
+```
+
+# Donor Alignment
+
+## Row {.tabset}
+
+### Donor Variation {.tabset}
+
+```{r}
+#| title: "Donor Variation Overview"
+
+# 1) Count systems per facility and assign Facility A, B, C...
+facility_ranked <- df |>
+  count(facility_name, name = "system_count") |>
+  arrange(desc(system_count)) |>
+  mutate(facility_clean = paste0("Facility ", LETTERS[row_number()]))
+
+# 2) Join back and order factor levels so Facility A is on top in coord_flip()
+df_plot <- df |>
+  left_join(facility_ranked, by = "facility_name") |>
+  mutate(
+    facility_clean = factor(
+      facility_clean,
+      levels = rev(facility_ranked$facility_clean)
+    )
+  )
+
+# 3) Clean funding: handle real NA + "NA" string + blanks; mark as missing placeholder
+df_clean <- df_plot |>
+  mutate(
+    funding_chr = as.character(funding),
+    funding_chr = na_if(funding_chr, "NA"),
+    funding_chr = na_if(funding_chr, ""),
+    funding_chr = if_else(is.na(funding_chr), "__missing__", funding_chr)
+  )
+
+# 4) Donor mapping ONLY for real donors (exclude MoH and missing)
+donor_map <- df_clean |>
+  filter(funding_chr != "MoH", funding_chr != "__missing__") |>
+  count(funding_chr, sort = TRUE) |>
+  mutate(funding_label = paste0("Donor ", LETTERS[row_number()])) |>
+  select(funding_chr, funding_label)
+
+# 5) Recode: MoH -> DHO/MoH/Gov; missing -> Unknown; others -> Donor A/B/...
+df_plot2 <- df_clean |>
+  left_join(donor_map, by = "funding_chr") |>
+  mutate(
+    funding_recode = case_when(
+      funding_chr == "MoH"         ~ "DHO/MoH/Gov",
+      funding_chr == "__missing__" ~ "Unknown",
+      TRUE                         ~ funding_label
+    )
+  )
+
+# 6) Plot
+ggplot(df_plot2,
+       aes(x = fct_rev(fct_infreq(facility_clean)),
+           fill = fct_infreq(funding_recode))) +
+  geom_bar(position = position_stack(reverse = TRUE)) +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(0, 10, 2)) +
+  labs(
+    x = NULL,
+    y = "Energy System Count",
+    fill = "Initial Funder"
+  ) +
+  theme_minimal() +
+  scale_fill_viridis_d(option = "H")
+
+
+```
+
+```{r}
+#| title: "Supply Category Donors"
+
+# ggplot(df_plot, aes(x = fct_rev(fct_infreq(type)), fill = fct_infreq(funding))) +
+#   geom_bar(position = position_stack(reverse = TRUE)) +
+#   coord_flip() +
+#   # scale_y_continuous(breaks = seq(0, 10, 2)) +
+#   labs(x = "Category",
+#        y = "Count",
+#        fill = "Funder") +
+#   theme_minimal() +
+#   scale_fill_viridis_d(option = "H")
+#   # scale_fill_colorblind()
+
+ggplot(df_plot2,
+       aes(x = fct_rev(fct_infreq(type)),
+           fill = fct_infreq(funding_recode))) +
+  geom_bar(position = position_stack(reverse = TRUE)) +
+  coord_flip() +
+  labs(x = "Category",
+       y = "Count",
+       fill = "Funder") +
+  theme_minimal() +
+  scale_fill_viridis_d(option = "H")
+
+```
+
+### Manufacturer Variation {.tabset}
+
+```{r}
+#| title: "Supply Categories Manufacturers"
+
+ggplot(combined, aes(x = fct_rev(fct_infreq(type)), fill = brand)) +
+  geom_bar() +
+  coord_flip() +
+  # scale_y_continuous(breaks = seq(0, 10, 2)) +
+  labs(x = "Category",
+       y = "Count",
+       fill = "Manufacturer") +
+  theme_minimal() 
+  # scale_fill_colorblind()
+
+
+```
+
+```{r}
+#| title: "District Supply Categories Manufacturers"
+
+district_manufacturers <- combined |>
+  mutate(district_label = paste("District", LETTERS[as.numeric(factor(district))])) |> 
+  filter(type != "Generator", 
+         type != "Grid",
+         ) |> 
+  mutate(brand = replace_na(brand, "Unknown"))
+
+ggplot(district_manufacturers, aes(x = fct_rev(fct_infreq(type)), fill = brand)) +
+  geom_bar() +
+  coord_flip() +
+  labs(x = NULL,
+       y = "Energy System Count",
+       fill = "Manufacturer") +
+  theme_minimal() +
+  facet_wrap(~ district_label)
+
+
+```
+
+```{r}
+#| title: "Manufacturers in each Facility"
+
+ggplot(df, aes(x = fct_rev(fct_infreq(facility_name)), fill = brand)) +
+  geom_bar() +
+  coord_flip() +
+  scale_y_continuous(breaks = seq(0, 10, 2)) +
+  labs(x = "Facility Name",
+       y = "Count",
+       fill = "Manufacturer") +
+  theme_minimal()
+```
+
+# Geographic
+
+## Row {.tabset}
+
+### Geocomputation with R {.tabset}
+
+```{r}
+#| title: "Malawian Health Centers"
+
+# Get Malawi polygons at relatively high resolution
+malawi <- rnaturalearth::ne_countries(
+  country = "Malawi",
+  scale = "large",        # "small", "medium", "large" (large = more detail)
+  returnclass = "sf"
+)
+
+
+fac_sf <- kobo_questionnaire |> 
+  st_as_sf(
+    coords = c("gps_location_longitude", "gps_location_latitude"),
+    crs = 4326,
+    remove = FALSE
+  )
+
+
+tm_shape(malawi) +
+  tm_polygons(fill = "grey95", col = "grey70") +
+  tm_shape(fac_sf) +
+  tm_symbols(
+    size = "catchment_population_size",
+    fill = "main_elec",
+    col  = "black",
+    size.scale = tm_scale_continuous(
+      values.range = c(0.1, 1.5)   # min & max symbol size (adjust as needed)
+    ),
+    size.legend = tm_legend(title = "Catchment Population"),
+    fill.legend = tm_legend(title = "Primary Electrification"),
+    fill.scale = tm_scale_categorical(
+  values = c("Grid" = "steelblue", "Mini-grid" = "red", "Solar" = "gold")
+)
+
+  ) +
+  tm_layout(legend.outside = TRUE) 
+
+
+#similar with ggplot----------------------------------------------------------
+
+bbox <- st_bbox(malawi)
+
+ggplot() +
+  geom_sf(data = malawi, fill = "grey95", color = "grey70") +
+  geom_sf(
+    data = fac_sf,
+    aes(size = catchment_population_size, color = main_elec),
+    alpha = 0.8
+  ) +
+  scale_size_continuous(
+    name  = "Catchment population",
+    range = c(1, 7)
+  ) +
+  scale_color_brewer(
+    name = "Primary electrification",
+    palette = "Dark2"
+  ) +
+  coord_sf(
+    xlim = c(bbox["xmin"], bbox["xmax"]),
+    ylim = c(bbox["ymin"], bbox["ymax"])
+  ) +
+  labs(title = "Health facilities in Malawi") +
+  theme_minimal()
+
+
+```
+
+# Climate Change
+
+## Row {.tabset}
+
+```{r}
+#| title: "Climate Impacts"
+
+impact_cols <- c(
+  "parts_operations_affected_increase_seasonal_illnesses",
+  "parts_operations_affected_increase",
+  "parts_operations_affected_cough",
+  "parts_operations_affected_decrease",
+  "parts_operations_affected_decrease_wild_fires",
+  "parts_operations_affected_decrease_lightning",
+  "parts_operations_affected_injury_lightning",
+  "parts_operations_affected_damage_buildings_equipment",
+  "parts_operations_affected_electricity_reliability",
+  "parts_operations_affected_water_availability",
+  "parts_operations_affected_migration",
+  "parts_operations_affected_not_seeking_care_outages",
+  "parts_operations_affected_delayed_care_transportation",
+  "parts_operations_affected_reduced_referral_ability",
+  "parts_operations_affected_rooms_too_hot",
+  "parts_operations_affected_dont_know"
+)
+
+impact_labels <- c(
+  parts_operations_affected_increase_seasonal_illnesses =
+    "Temporary increases in patients due to more malaria in the rainy season",
+
+  parts_operations_affected_increase =
+    "Temporary increases in patients due to malnutrition in long dry seasons",
+
+  parts_operations_affected_cough =
+    "Temporary increases in patients in cold, dry seasons due to dust in the air, causing cough",
+
+  parts_operations_affected_decrease =
+    "Temporary decreases in facility accessibility due to floods",
+
+  parts_operations_affected_decrease_wild_fires =
+    "Temporary decreases in facility accessibility due to wild fires",
+
+  parts_operations_affected_decrease_lightning =
+    "Temporary decreases in facility accessibility due to storms/cyclones",
+
+  parts_operations_affected_injury_lightning =
+    "Injuries because of storms/cyclones/lightnings",
+
+  parts_operations_affected_damage_buildings_equipment =
+    "Damage to infrastructure or energy systems or equipment because of storms/cyclones/lightnings",
+
+  parts_operations_affected_electricity_reliability =
+    "Grid is less reliable during dry seasons",
+
+  parts_operations_affected_water_availability =
+    "Decreased water availability",
+
+  parts_operations_affected_migration =
+    "Migration to/from the region due to weather/environment",
+
+  parts_operations_affected_not_seeking_care_outages =
+    "People not seeking care due to power outages",
+
+  parts_operations_affected_delayed_care_transportation =
+    "Delayed care-seeking due to transportation issues",
+
+  parts_operations_affected_reduced_referral_ability =
+    "Reduced ability to refer patients to other facilities due to weather",
+
+  parts_operations_affected_rooms_too_hot =
+    "Rooms too hot so doors have to be opened, affects privacy",
+
+  parts_operations_affected_dont_know =
+    "Don't know"
+)
+
+
+
+climate_impacts <- kobo_questionnaire |>
+  summarise(
+    across(
+      all_of(names(impact_labels)),
+      ~ sum(.x %in% c("Yes", TRUE, 1), na.rm = TRUE)
+    )
+  ) |>
+  pivot_longer(
+    everything(),
+    names_to = "Impact",
+    values_to = "Count"
+  ) |>
+  mutate(
+    Impact = impact_labels[Impact] |> unname()
+  )
+
+
+climate_impacts |>
+  arrange(desc(Count)) |>
+  gt() |>
+  tab_header(
+    title = "Climate-related impacts on health facility operations"
+  ) |>
+  cols_label(
+    Impact = "Impact",
+    Count = "Number of facilities"
+  ) |>
+  opt_stylize(style = 1)
+
+
+```
+
+# Data
+
+## Row {.tabset}
+
+```{r}
+#| title: "Energy Systems"
+
+library(DT)
+
+all_vars <- df |> 
+  select(facility_id,
+facility_name,
+brand,
+model,
+description,
+type,
+use,
+panel_count,
+panel_size,
+np_total_storage_capacity_wh,
+storage_type,
+battery_corrosion,
+battery_dust,
+inverter_manufacturer,
+np_inverter_output_va,
+charge_controller,
+funding,
+installer,
+functional_donation,
+installation_year,
+functional_now,
+failure_year,
+disfunction_part,
+disfunction_cause,
+repair_duty,
+repair_wait_time,
+repair_success,
+maintenance_by,
+spare_parts,
+remote_monitoring,
+functional_but_unused_reason,
+notes,
+images
+)
+datatable(all_vars)
+
+
+```
+
+```{r}
+#| title: "Kobo Questionnnaire"
+
+datatable(kobo_questionnaire)
+```
+
+```{r}
+#| title: "Combined"
+
+datatable(combined)
+```

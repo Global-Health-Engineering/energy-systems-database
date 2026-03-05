@@ -1,0 +1,312 @@
+original_name,short_name
+Enumerator's name,enumerator
+Do you give consent to proceed with this survey?,consent
+GPS location,gps
+_GPS location_latitude,gps_location_latitude
+_GPS location_longitude,gps_location_longitude
+_GPS location_altitude,gps_location_altitude
+_GPS location_precision,gps_location_precision
+How far is the facility from the distribution lines of the grid? (in km),grid_distance
+What is the name of the facility?,facility_name
+Facility ID,facility_id
+In which region is the facility located?,region
+In which district is the facility located?,district
+What type of facility is this?...13,what_type_of_facility_is_this_13
+What type of facility is this?...14,what_type_of_facility_is_this_14
+What is the managing authority of the facility?...15,what_is_the_managing_authority_of_the_facility_15
+What is the managing authority of the facility?...16,what_is_the_managing_authority_of_the_facility_16
+Is the facility located in an urban or rural area?,urban_rural_location
+Is the facility outpatient only?,outpatient_only
+Is there a 24/7 maternity ward?,maternity_ward
+What is the catchment population size of the facility?,catchment_population_size
+What is the catchment area of the facility?,catchment_area
+"On average, how many patients visit the facility per day?",patients_per_day
+How does the patient population vary over the year? Is there a busy season/which season is the busiest?,patient_population_seasonality
+How does the patient population vary over the year? Is there a busy season/which season is the busiest?/Hot & Wet Season (November - April),patient_population_seasonality_hotwetseason
+How does the patient population vary over the year? Is there a busy season/which season is the busiest?/Cool & Dry Season (May - August),patient_population_seasonality_colddryseason
+How does the patient population vary over the year? Is there a busy season/which season is the busiest?/Hot & Dry Season (September - October),patient_population_seasonality_hotdryseason
+How does the patient population vary over the year? Is there a busy season/which season is the busiest?/No significant variation,patient_population_seasonality_no_significant_variation
+How does the patient population vary over the year? Is there a busy season/which season is the busiest?/Don't know,patient_population_seasonality_dont_know
+Which days of the week is the facility open to patients?,weekdays
+Which days of the week is the facility open to patients?/Monday,weekdays_monday
+Which days of the week is the facility open to patients?/Tuesday,weekdays_tuesday
+Which days of the week is the facility open to patients?/Wednesday,weekdays_wednesday
+Which days of the week is the facility open to patients?/Thursday,weekdays_thursday
+Which days of the week is the facility open to patients?/Friday,weekdays_friday
+Which days of the week is the facility open to patients?/Saturday,weekdays_saturday
+Which days of the week is the facility open to patients?/Sunday,weekdays_sunday
+Which days of the week is the facility open to patients?/Don't know,weekdays_dont_know
+Which days are the busiest per week on average?,busiest_days_of_week
+Which days are the busiest per week on average?/Monday,busiest_days_of_week_monday
+Which days are the busiest per week on average?/Tuesday,busiest_days_of_week_tuesday
+Which days are the busiest per week on average?/Wednesday,busiest_days_of_week_wednesday
+Which days are the busiest per week on average?/Thursday,busiest_days_of_week_thursday
+Which days are the busiest per week on average?/Friday,busiest_days_of_week_friday
+Which days are the busiest per week on average?/Saturday,busiest_days_of_week_saturday
+Which days are the busiest per week on average?/Sunday,busiest_days_of_week_sunday
+Which days are the busiest per week on average?/Don't know,busiest_days_of_week_dont_know
+"On average, how many hours per day is this facility open?",facility_open_hours_per_day
+How long do outpatients stay in the clinic on average? (hours),outpatient_stay_duration
+How long is the average consultation?,consultation_duration
+How do patients get to the clinic?,patient_transport_mode
+How do patients get to the clinic?/Foot,patient_transport_mode_foot
+How do patients get to the clinic?/Bicycle,patient_transport_mode_bicycle
+How do patients get to the clinic?/Car (private/taxi),patient_transport_mode_car
+How do patients get to the clinic?/Bus (public transport),patient_transport_mode_bus
+How do patients get to the clinic?/Shuttle (facility-provided),patient_transport_mode_shuttle
+How do patients get to the clinic?/Motorbike,patient_transport_mode_motorbike
+How do patients get to the clinic?/Oxcart,patient_transport_mode_oxcart
+How do patients get to the clinic?/Other (specify),patient_transport_mode_other
+"On average, for how many hours during the evening (after 6 p.m.) and night is the facility open for services?",facility_open_evening_night
+"On average, for how many hours during the evening (after 6 p.m.) and night is electricity available at the health facility?",electricity_available_evening_night
+"On average, how many nights per month is a patient treated? (after 6 p.m.)",night_treatments_monthly
+"On average, how many nights (after 6 p.m.) per month is a patient treated without adequate lighting?",night_treatments_in_darkness_monthly
+"Does your facility have electricity from any source (e.g. grid, generator, solar, or other)?",electricity_source
+What is the electricity used for in the facility?,electricity_uses
+"What is the electricity used for in the facility?/Stand-alone electric medical devices/appliances (e.g. EPUI cold room, suction apparatus, refrigerator, etc.)",electricity_uses_medical_devices
+What is the electricity used for in the facility?/Electric lighting (excluding flashlights),electricity_uses_electric_lighting
+What is the electricity used for in the facility?/Staff housing,electricity_uses_all_needs_incl_housing
+What is the electricity used for in the facility?/Communications,electricity_uses_communications
+What is the electricity used for in the facility?/Device charging,electricity_uses_device_charging
+What is the electricity used for in the facility?/Water Pumps,electricity_uses_water_pumps
+"What is the electricity used for in the facility?/Heating, Ventilation, and Air Conditioning (HVAC)",electricity_uses_hvac
+"What is the electricity used for in the facility?/Security and Safety (security cameras, alarms, fire detection systems)",electricity_uses_security
+What is the electricity used for in the facility?/Other (specify),electricity_uses_other
+"If the facility has electricity, what is its main source? Note: This means the electricity source that you rely upon most of the time.",main_elec
+"Other than the main or primary source, does the facility have a backup source of electricity?",has_backup
+What is the secondary source of electricity?,secondary_elec
+What is the secondary source of electricity?/No back-up source,secondary_elec_no_backup_source
+What is the secondary source of electricity?/Central supply electricity grid,secondary_elec_escom_grid_backup
+"What is the secondary source of electricity?/Local mini-grid (i.e., the facility shares electricity supply, typically a renewable source or a generator, with other nearby buildings) Specify the supply modality if known.",secondary_elec_mini_grid_backup
+What is the secondary source of electricity?/On-site hybrid solar/generator,secondary_elec_on_site_solar_gen_bckup
+What is the secondary source of electricity?/On-site solar system (except lanterns),secondary_elec_on_site_solar_bckup
+What is the secondary source of electricity?/On-site generator (with battery storage),secondary_elec_on_site_gen_bat_bckup
+What is the secondary source of electricity?/On-site generator (no battery storage),secondary_elec_on_site_gen_no_bat_bckup
+What is the secondary source of electricity?/Dedicated hydropower system,secondary_elec_hydro_bckup
+What is the secondary source of electricity?/Dedicated wind power system,secondary_elec_wind_bckup
+What is the secondary source of electricity?/Solar lanterns,secondary_elec_solar_lanterns_bckup
+What is the secondary source of electricity?/Other (Specify),secondary_elec_other
+Does the facility have an energy storage system like a rechargeable battery system?,has_storage
+"If you have both a primary and a secondary/backup source, do you have an energy management system to switch automatically?",auto_switch
+Does the facility ever experience complete power loss?,complete_blackout
+"If the whole facility has no electricity, what is do you use as a lighting source?",primary_light
+"If the whole facility has no electricity, what is do you use as a lighting source?/No source of lighting",primary_light_no_source
+"If the whole facility has no electricity, what is do you use as a lighting source?/Kerosene lamps",primary_light_paraffin_lamps
+"If the whole facility has no electricity, what is do you use as a lighting source?/Candles",primary_light_candles
+"If the whole facility has no electricity, what is do you use as a lighting source?/Battery-operated lamps/flashlights",primary_light_battery_lamps
+"If the whole facility has no electricity, what is do you use as a lighting source?/Solar lanterns",primary_light_solar_lamps
+"If the whole facility has no electricity, what is do you use as a lighting source?/Headlamps",primary_light_headlamps
+"If the whole facility has no electricity, what is do you use as a lighting source?/Other (Specify)",primary_light_other
+Is the generator functional?,generator_functional
+Does the generator have fuel available today?,generator_fuel_available
+Does the generator have fuel available today?/Yes,generator_fuel_available_yes
+Does the generator have fuel available today?/Petrol,generator_fuel_available_petrol
+Does the generator have fuel available today?/Diesel,generator_fuel_available_diesel
+Does the generator have fuel available today?/No,generator_fuel_available_no
+Does the generator have fuel available today?/Don't know,generator_fuel_available_dont_know
+Is the grid functional?,grid_functional
+"In recent times, how often was there a power outage?",outage_frequency
+"In the case of a grid power outage, how many hours does it last on average?",outage_duration
+When are supply interruptions most common?,common_interruption_time
+Does the facility usually face a problem of low voltage or voltage fluctuations from the main source?,voltage_problem_main_source
+Have voltage fluctuations damaged equipment in the past year?,voltage_damage_equipment
+"If you use electricity from the grid, did you have sufficient funds available for paying your electricity bills in the last two months?",grid_bill_budget_sufficient_2months
+"If you use electricity from the grid, who pays the electricity bill for the health clinic?",grid_bill_payer
+"If you use electricity from the grid, who pays the electricity bill for the health clinic?/MoH/DHO with additional budget",grid_bill_payer_moh_dho
+"If you use electricity from the grid, who pays the electricity bill for the health clinic?/Donor",grid_bill_payer_donor
+"If you use electricity from the grid, who pays the electricity bill for the health clinic?/Health facility baseline budget",grid_bill_payer_health_facility_baseline_budget
+"If you use electricity from the grid, who pays the electricity bill for the health clinic?/Health facility comittee",grid_bill_payer_health_facility
+"If you use electricity from the grid, who pays the electricity bill for the health clinic?/Staff for their own housing",grid_bill_payer_staff
+"If you use electricity from the grid, who pays the electricity bill for the health clinic?/Patients",grid_bill_payer_patients
+"If you use electricity from the grid, who pays the electricity bill for the health clinic?/Don’t know",grid_bill_payer_dont_know
+"If you use electricity from the grid, who pays the electricity bill for the health clinic?/Other (Specify)",grid_bill_payer_other
+"If you use electricity from the grid, who pays the electricity bill for the health clinic?/No one",grid_bill_payer_no_one
+"Over the last two months, did you have sufficient funds available for fuel for the stand-alone generator to operate at all times when it was needed?",generator_fuel_budget_sufficient_2months
+Who pays for generator fuel?,generator_fuel_payer
+Who pays for generator fuel?/MoH/DHO with additional budget,generator_fuel_payer_moh_dho
+Who pays for generator fuel?/Donor,generator_fuel_payer_donor
+Who pays for generator fuel?/Health facility baseline budget,generator_fuel_payer_health_facility_baseline_budget
+Who pays for generator fuel?/Health facility comittee,generator_fuel_payer_health_facility
+Who pays for generator fuel?/Staff,generator_fuel_payer_staff
+Who pays for generator fuel?/Patients,generator_fuel_payer_patients
+Who pays for generator fuel?/Don’t know,generator_fuel_payer_dont_know
+Who pays for generator fuel?/Other (Specify),generator_fuel_payer_other
+Who pays for generator fuel?/No one,generator_fuel_payer_no_one
+"Over the last year, did you have sufficient funds available to keep the solar panels functional?",solar_panel_budget_sufficient_1year
+"If you use a solar energy-based electricity solution, who pays for light bulbs and solar parts replacement?",solar_parts_payer
+"If you use a solar energy-based electricity solution, who pays for light bulbs and solar parts replacement?/MoH/DHO with additional budget",solar_parts_payer_moh_dho
+"If you use a solar energy-based electricity solution, who pays for light bulbs and solar parts replacement?/Donor",solar_parts_payer_donor
+"If you use a solar energy-based electricity solution, who pays for light bulbs and solar parts replacement?/Health facility baseline budget",solar_parts_payer_health_facility_baseline_budget
+"If you use a solar energy-based electricity solution, who pays for light bulbs and solar parts replacement?/Health facility comittee",solar_parts_payer_health_facility
+"If you use a solar energy-based electricity solution, who pays for light bulbs and solar parts replacement?/Staff",solar_parts_payer_staff
+"If you use a solar energy-based electricity solution, who pays for light bulbs and solar parts replacement?/Patients",solar_parts_payer_patients
+"If you use a solar energy-based electricity solution, who pays for light bulbs and solar parts replacement?/Don’t know",solar_parts_payer_dont_know
+"If you use a solar energy-based electricity solution, who pays for light bulbs and solar parts replacement?/Other (Specify)",solar_parts_payer_other
+"If you use a solar energy-based electricity solution, who pays for light bulbs and solar parts replacement?/No one",solar_parts_payer_no_one
+Is preventive maintenance carried out for any of the energy systems?,preventive_maintenance_carried_out
+Is there a designated staff member trained in managing or troubleshooting any part of the energy system?,trained_staff_energy_system
+Is the current electricity system sufficient for your current needs?,current_electricity_sufficient
+Do you expect your electricity needs to increase in the next 12 months?,electricity_needs_increase
+Are there plans to upgrade or expand the electricity system?,plans_upgrade_expand
+What kind of upgrade is planned?,plan_upgrade_energy_system
+What kind of upgrade is planned?/Central supply (national/community grid),plan_upgrade_energy_system_central_supply
+What kind of upgrade is planned?/Local mini-grid,plan_upgrade_energy_system_local_mini_grid
+What kind of upgrade is planned?/On-site hybrid solar/generator,plan_upgrade_energy_system_on_site_hybrid_solar_generator
+What kind of upgrade is planned?/On-site generator (with battery storage),plan_upgrade_energy_system_on_site_generator_battery
+What kind of upgrade is planned?/On-site generator (no battery storage),plan_upgrade_energy_system_on_site_generator_no_battery
+What kind of upgrade is planned?/On-site solar system (except lanterns),plan_upgrade_energy_system_on_site_solar_system
+What kind of upgrade is planned?/Dedicated hydropower system,plan_upgrade_energy_system_dedicated_hydropower_system
+What kind of upgrade is planned?/Dedicated wind power system,plan_upgrade_energy_system_dedicated_wind_power_system
+What kind of upgrade is planned?/Rechargeable battery system,plan_upgrade_energy_system_rechargeable_battery_system
+What kind of upgrade is planned?/Solar lanterns,plan_upgrade_energy_system_solar_lanterns
+What kind of upgrade is planned?/Other (Specify),plan_upgrade_energy_system_other
+Have you observed any changes in weather or climate over the past few years?,most_noticeable_weather_changes
+Have you observed any changes in weather or climate over the past few years?/No,most_noticeable_weather_changes_no
+Have you observed any changes in weather or climate over the past few years?/Increased temperatures,most_noticeable_weather_changes_increased_temperatures
+Have you observed any changes in weather or climate over the past few years?/Heatwaves,most_noticeable_weather_changes_heatwaves
+Have you observed any changes in weather or climate over the past few years?/More frequent storms,most_noticeable_weather_changes_more_frequent_storms
+Have you observed any changes in weather or climate over the past few years?/Flooding,most_noticeable_weather_changes_flooding
+Have you observed any changes in weather or climate over the past few years?/Longer dry periods,most_noticeable_weather_changes_longer_dry_periods
+Have you observed any changes in weather or climate over the past few years?/Other (specify),most_noticeable_weather_changes_other
+Have changes in climate or weather events affected the operations at your facility?,weather_patterns_affected_operations
+What parts of facility operations have been most affected by extreme weather events?,parts_operations_affected
+What parts of facility operations have been most affected by extreme weather events?/Temporary increases in patients due to more malaria in the rainy season,parts_operations_affected_increase_seasonal_illnesses
+What parts of facility operations have been most affected by extreme weather events?/Temporary increases in patients due to malnutrition in long dry seasons,parts_operations_affected_increase
+"What parts of facility operations have been most affected by extreme weather events?/Temporary increases in patients in cold, dry seasons due to dust in the air, causing cough",parts_operations_affected_cough
+What parts of facility operations have been most affected by extreme weather events?/Temporary decreases in facility accessibility due to floods,parts_operations_affected_decrease
+What parts of facility operations have been most affected by extreme weather events?/Temporary decreases in facility accessibility due to wild fires,parts_operations_affected_decrease_wild_fires
+What parts of facility operations have been most affected by extreme weather events?/Temporary decreases in facility accessibility due to storms/cyclones,parts_operations_affected_decrease_lightning
+What parts of facility operations have been most affected by extreme weather events?/Injuries because of storms/cyclones/lightnings,parts_operations_affected_injury_lightning
+What parts of facility operations have been most affected by extreme weather events?/Damage to infrastructure or energy systems or equipment because of storms/cyclones/lightnings,parts_operations_affected_damage_buildings_equipment
+What parts of facility operations have been most affected by extreme weather events?/Grid is less reliable during dry seasons,parts_operations_affected_electricity_reliability
+What parts of facility operations have been most affected by extreme weather events?/Decreased water availability,parts_operations_affected_water_availability
+What parts of facility operations have been most affected by extreme weather events?/Migration to/from the region due to weather/environment,parts_operations_affected_migration
+What parts of facility operations have been most affected by extreme weather events?/People not seeking care due to power outages,parts_operations_affected_not_seeking_care_outages
+What parts of facility operations have been most affected by extreme weather events?/Delayed care-seeking due to transportation issues,parts_operations_affected_delayed_care_transportation
+What parts of facility operations have been most affected by extreme weather events?/Reduced ability to refer patients to other facilities due to weather,parts_operations_affected_reduced_referral_ability
+"What parts of facility operations have been most affected by extreme weather events?/Rooms too hot so doors have to be opened, affects privacy",parts_operations_affected_rooms_too_hot
+What parts of facility operations have been most affected by extreme weather events?/Don't know,parts_operations_affected_dont_know
+What parts of facility operations have been most affected by extreme weather events?/Other (specify),parts_operations_affected_other
+"Based on your current knowledge, what or who is the cause of climate change?",cause_climate_change
+"In your opinion, is climate change affecting your community or the way health services are delivered?",climate_change_affecting_community
+Is there a water source available?,water_source_available
+What does the water source of the facility look like?,water_source_look
+What does the water source of the facility look like?/Piped,water_source_look_piped
+What does the water source of the facility look like?/Public tap,water_source_look_public_tap
+What does the water source of the facility look like?/Standpipe,water_source_look_standpipe
+What does the water source of the facility look like?/Tubewell/Borehole,water_source_look_tubewell_borehole
+What does the water source of the facility look like?/Protected Dug Well,water_source_look_protected_dug_well
+What does the water source of the facility look like?/Protected Spring,water_source_look_protected_spring
+What does the water source of the facility look like?/Rain Water,water_source_look_rain_water
+What does the water source of the facility look like?/None,water_source_look_none
+Where is the water source located?,water_source_location
+"Is there a separate, private consultation room available?",private_consultation_room
+Can a normal conversation be held in the consultation room without being overheard?,conversation_private
+Is there a toilet/latrine available for clients?,toilet_available
+What does the toilet/latrine look like?,toilet_look
+What does the toilet/latrine look like?/Flush/pour flush to piped sewer system or septic tank or pit latrine,toilet_look_flush_septic
+What does the toilet/latrine look like?/pit latrine (ventilated improved pit (VIP) or other) with slab,toilet_look_pit_latrine
+What does the toilet/latrine look like?/composting toilet,toilet_look_composting_toilet
+What does the toilet/latrine look like?/None,toilet_look_none
+Are there adequate sanitation facilities available on premises for clients?,adequate_sanitation
+What functioning communication equipment is available?,comm_equipment
+What functioning communication equipment is available?/Private cell phone (reimbursed by facilitiy),comm_equipment_private_cell_phone_reimbursed
+What functioning communication equipment is available?/Private cell phone,comm_equipment_private_cell_phone
+What functioning communication equipment is available?/Facility cell phone,comm_equipment_facility_cell_phone
+What functioning communication equipment is available?/Other phone,comm_equipment_other_phone
+What functioning communication equipment is available?/SW radio,comm_equipment_sw_radio
+Is there a functioning facility computer available?,facility_computer
+Does the computer have access to working internet? (day of survey),computer_internet
+Is there an emergency transportation vehicle available for clients?,emergency_vehicle
+Adult Scale,adult_scale
+Child Scale (250g steps min),child_scale
+Thermometer,thermometer
+Stethoscope,stethoscope
+Blood pressure apparatus,blood_pressure_apparatus
+Light source (Spotlight/flashlight for examinations),light_source
+How are sharps disposed of?,sharps_disposal
+Are unprotected sharps observed on site?,unprotected_sharps
+How is infectious waste disposed of?,infectious_waste_disposal
+Is unprotected infectious waste observed on site?,unprotected_infectious_waste
+Is storage for sharps observed on site?,sharps_storage
+What does the storage for sharps look like?,sharps_storage_look
+What does the storage for sharps look like?/Puncture-resistant,sharps_storage_look_puncture_resistant
+What does the storage for sharps look like?/Rigid,sharps_storage_look_rigid
+What does the storage for sharps look like?/Leak-resistant,sharps_storage_look_leak_resistant
+"What does the storage for sharps look like?/Container to hold used sharps safely during collection, disposal and distruction",sharps_storage_look_container
+What does the storage for sharps look like?/Material: plastic,sharps_storage_look_plastic
+What does the storage for sharps look like?/Material: metal,sharps_storage_look_metal
+What does the storage for sharps look like?/Material: cardboard,sharps_storage_look_cardboard
+What does the storage for sharps look like?/Closeable,sharps_storage_look_closeable
+What does the storage for sharps look like?/For sharps of all standard sizes,sharps_storage_look_all_standard_sizes
+"What does the storage for sharps look like?/Clearly marked with intl. Biohazard warning no less than 50mm in diameter, printed in black or red on each of the front an back faces of the box",sharps_storage_look_biohazard_marked
+What does the storage for sharps look like?/Other (specify),sharps_storage_look_other
+What does the storage for sharps look like?/None,sharps_storage_look_none
+Where was the storage for sharps observed?,sharps_storage_location
+Where was the storage for sharps observed?/General OPD,sharps_storage_location_general_opd
+Where was the storage for sharps observed?/HIV testing area,sharps_storage_location_hiv_testing_area
+Where was the storage for sharps observed?/Surgery area,sharps_storage_location_surgery_area
+Where was the storage for sharps observed?/Other (specify),sharps_storage_location_other
+Where was the storage for sharps observed?/None,sharps_storage_location_none
+Is there appropriate storage for infectious waste? (Waste receptacle (pedal bin) with lid and plastic bin liner),infectious_waste_storage
+Is there disinfectant available anywhere in the facility? (Chlorine-based or other country specific used for environmental disinfection),disinfectant_available
+Are there Single use —standard disposable or auto-disable syringes available anywhere in the facility?,syringes_available
+How are instruments sterilized?,sterilization
+How are instruments sterilized?/Electrical autoclave,sterilization_autoclave
+How are instruments sterilized?/Pressure pot boiling,sterilization_pressure_pot
+How are instruments sterilized?/Glutaraldehyde,sterilization_glutaraldehyde
+How are instruments sterilized?/Peracetic-acid / hydrogen-peroxide solutions,sterilization_peracetic_acid
+How are instruments sterilized?/Other (specify),sterilization_other
+How are instruments sterilized?/None,sterilization_none
+Where is Soap and running water or alcohol based hand rub available in the facilitiy?,soap_location
+Where is Soap and running water or alcohol based hand rub available in the facilitiy?/General OPD,soap_location_general_opd
+Where is Soap and running water or alcohol based hand rub available in the facilitiy?/HIV testing area,soap_location_hiv_testing_area
+Where is Soap and running water or alcohol based hand rub available in the facilitiy?/Basic obstetric area,soap_location_basic_obstetric_area
+Where is Soap and running water or alcohol based hand rub available in the facilitiy?/Newborn care area,soap_location_newborn_care_area
+Where is Soap and running water or alcohol based hand rub available in the facilitiy?/Surgery area,soap_location_surgery_area
+Where is Soap and running water or alcohol based hand rub available in the facilitiy?/Other (specify),soap_location_other
+Where is Soap and running water or alcohol based hand rub available in the facilitiy?/None,soap_location_none
+Where are Latex gloves available in the facilitiy? (If equivalent non latex gloves are available this is acceptable.),latex_gloves_location
+Where are Latex gloves available in the facilitiy? (If equivalent non latex gloves are available this is acceptable.)/General OPD,latex_gloves_location_general_opd
+Where are Latex gloves available in the facilitiy? (If equivalent non latex gloves are available this is acceptable.)/HIV testing area,latex_gloves_location_hiv_testing_area
+Where are Latex gloves available in the facilitiy? (If equivalent non latex gloves are available this is acceptable.)/Basic obstetric area,latex_gloves_location_basic_obstetric_area
+Where are Latex gloves available in the facilitiy? (If equivalent non latex gloves are available this is acceptable.)/Newborn care area,latex_gloves_location_newborn_care_area
+Where are Latex gloves available in the facilitiy? (If equivalent non latex gloves are available this is acceptable.)/Surgery area,latex_gloves_location_surgery_area
+Where are Latex gloves available in the facilitiy? (If equivalent non latex gloves are available this is acceptable.)/Other (specify),latex_gloves_location_other
+Where are Latex gloves available in the facilitiy? (If equivalent non latex gloves are available this is acceptable.)/None,latex_gloves_location_none
+Are there guidelines for standard precautions available anywhere in the facility?,guidelines_available
+Haemoglobin (This may include colorimeter OR haemoglobinometer OR hemocue.),haemoglobin
+Blood glucose (Glucometer and glucometer test strips),blood_glucose
+"Malaria diagnostic capacity (RDT kit or smear with microscope, slides, and Wright Giemsa stain)",malaria_diagnostic
+Urine dipstick- protein (Dipsticks for urine protein (with valid expiration date)),urine_dipstick_protein
+Urine dipstick- glucose (Dipsticks for urine glucose (with valid expiration date)),urine_dipstick_glucose
+"HIV diagnostic capacity (RDT kit or ELISA test with ELISA washer, ELISA reader, incubator, specific assay kit)",hiv_diagnostic
+Syphilis rapid test (RDT kit),syphilis_rapid_test
+Urine test for pregnancy (RDT kit),urine_test_pregnancy
+Amlodipine tablet or alternative calcium channel blocker,amlodipine
+Amoxicillin syrup/suspension or dispersible tablet,amoxicillin_syrup
+Amoxicillin tablet (Respiratory antibiotic),amoxicillin_tablet
+Ampicillin powder for injection,ampicillin_powder
+Aspirin cap/tab,aspirin
+Beclometasone inhaler,beclometasone_inhaler
+"Beta blocker (e.g.bisoprolol, metoprolol, carvedilol, atenolol)",beta_blocker
+Carbamazepine tablet,carbamazepine_tablet
+Ceftriaxone injection (2nd line injectable antibiotic),ceftriaxone_injection
+Diazepam injection,diazepam_injection
+"Enalapril tablet or alternative ACE inhibitor e.g. lisinopril, ramipril, perindopril",enalapril_tablet
+Fluoxetine tablet,fluoxetine_tablet
+Gentamicin injection,gentamicin_injection
+Glibenclamide tablet (Oral treatment type 2 diabetes),glibenclamide_tablet
+Haloperidol tablet,haloperidol_tablet
+Insulin regular injection,insulin_regular
+Magnesium sulphate injectable,magnesium_sulphate
+Metformin tablet,metformin_tablet
+"Omeprazole tablet or alternative such as pantoprazole, rabeprazole (Gastro-esophogeal reflux)",omeprazole_tablet
+Oral rehydration solution,oral_rehydration_solution
+Oxytocin injection,oxytocin_injection
+Salbutamol inhaler (Chronic asthma attacks),salbutamol_inhaler
+"Simvastatin tablet or other statin e.g. atorvastatin, pravastatin, fluvastatin (High cholesterol)",simvastatin_tablet
+Thiazide (e.g. hydrochlorothiazide),thiazide
+"Zinc sulphate tablets, dispersible tablets or syrup",zinc_sulphate
+Thank you for your time. The survey is now finished.This space allows you to add anything you think should be mentioned.,end_message
+_uuid,uuid

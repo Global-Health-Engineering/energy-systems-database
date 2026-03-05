@@ -1,0 +1,186 @@
+library(tidyverse)
+library(googlesheets4)
+library(lubridate)
+library(janitor)
+library(readr)
+library(dplyr)
+
+#excel energy systems
+
+#read data from csv
+tidy_energy_systems <- read_csv("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/raw_data/Energy Systems Excel/Complete_HC_EnergySystems.csv") |> 
+  clean_names()
+
+#data tidying ------------------------------------------
+
+tidy_energy_systems <- tidy_energy_systems |> 
+  mutate(repair_duty = case_when(
+    repair_duty %in% c("DHO", "DHO, trained", "Donor, hired dho personnel", "MoH", "Donor, DHO", "Escom", "Staff") ~ "DHO/MoH/Gov",
+    is.na(repair_duty) ~ "Unknown",  # make NA visible as its own category
+    TRUE ~ repair_duty),
+    # Explicit factor ordering
+    repair_duty = factor(repair_duty, levels = c("DHO/MoH/Gov", "Unknown", "Donor"))) |> 
+  mutate(
+    type = case_when(
+      type %in% c("Grid (three phase)", "Grid (single phase)") ~ "Grid",
+      type %in% c("Solar, Inverter, Battery", "Solar, Wind, Inverter, Battery") ~ "Solar, Battery, Inverter",
+      type %in% c("Solar, Inverter", "Solar only") ~ "Solar",     # example extra grouping
+      is.na(type) ~ "Unknown",                                   # handle NAs too
+      TRUE ~ type                                                # keep others unchanged
+    )
+  )
+
+# Reorder funders by frequency
+tidy_energy_systems <- tidy_energy_systems |> 
+  mutate(funding = fct_infreq(funding) |> 
+           fct_rev())
+
+
+#save files in processed folder
+write_csv(tidy_energy_systems, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/HC_EnergySystems.csv")
+write_rds(tidy_energy_systems, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/HC_EnergySystems.rds")
+
+#--------------------------------------------------------------------------
+#--------------------------------------------------------------------------
+
+#kobo questionnaire
+
+#Read data from csv
+kobo_questionnaire <- read_csv("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/raw_data/Kobo/Healthcare_Questionnaire.csv")
+
+#column remapping------------------------------------------------------------
+
+# colnames remapping 1) Load the mapping (with columns: original_name, short_name)
+mapping <- read_csv("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/raw_data/Kobo/column_mapping.csv")
+
+# 2) Replace column names using the mapping
+names(kobo_questionnaire) <- mapping$short_name[match(names(kobo_questionnaire), mapping$original_name)]
+
+# 3) Inspect the result
+head(names(kobo_questionnaire))
+glimpse(kobo_questionnaire)
+
+# 4) Check uniqueness of all names
+stopifnot(!any(duplicated(names(kobo_questionnaire))))
+
+# 
+kobo_questionnaire <- kobo_questionnaire |> 
+  mutate(main_elec = recode(main_elec,
+                                                  "Central supply (national/community grid)" = "Grid",
+                                                  "On-site solar system (except lanterns)" = "Solar",
+                                                  "Local mini-grid (i.e., the facility shares electricity supply, typically a renewable source or a generator, with other nearby buildings) Specify the supply modality if known." = "Mini-grid"
+  ))
+unique(kobo_questionnaire$main_elec)
+
+
+
+#kobo tidying------------------------------------------------------------------------
+
+kobo_questionnaire[kobo_questionnaire == -99] <- NA
+sum(kobo_questionnaire == -99, na.rm = TRUE)
+
+
+
+#save files in processed folder----------------------
+write_csv(kobo_questionnaire, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Kobo_Questionnaire.csv")
+write_rds(kobo_questionnaire, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Kobo_Questionnaire.rds")
+
+
+#--------------------------------------------------------------------------
+#--------------------------------------------------------------------------
+
+#joining both datasets
+
+# 1) Sanity checks: make sure the key exists
+stopifnot("facility_id" %in% names(kobo_questionnaire))
+stopifnot("facility_id" %in% names(tidy_energy_systems))
+
+# 2) Perform the many-to-one join:
+#    - left_join keeps all rows from energy
+#    - All questionnaire columns are appended for matching facility_id
+#    - If both tables share a column name (other than the key), suffix them to avoid collisions
+combined <- tidy_energy_systems |> 
+  left_join(kobo_questionnaire, by = "facility_id", suffix = c("_energy", "_quest"))
+
+# 3) Optional diagnostics (helpful to spot join issues)
+# Energy rows that didn't find a questionnaire match:
+unmatched_energy <- anti_join(tidy_energy_systems, kobo_questionnaire, by = "facility_id")
+# Questionnaire facilities that never appear in energy:
+unmatched_questionnaire <- anti_join(kobo_questionnaire, tidy_energy_systems, by = "facility_id")
+
+message("Unmatched energy rows: ", nrow(unmatched_energy))
+message("Questionnaire-only facilities: ", nrow(unmatched_questionnaire))
+
+# 4) Save result
+write_csv(combined, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Combined_Questionnaire_Systems.csv")
+write_rds(combined, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Combined_Questionnaire_Systems.rds")
+
+
+
+
+
+# #delete/remove a column
+# responses <- responses |> 
+#   select(-Timestamp)
+# 
+# #make an id col
+# tidydata <- responses |>
+#   mutate(id = seq(1:n()),
+#          .before = `Timestamp`)
+# 
+# #rename test
+# tidydata <- tidydata |> 
+#   rename("age" = `What is your age?`)
+# 
+# #all other renames
+# tidydata <- tidydata |> 
+#   rename("gender" = `What is your gender`, 
+#          "education_level" = `What your highest completed level of your education?`,
+#          "environmental_responsibility" = `How important is environmental responsibility to you`,
+#          "returns_count" = `How many times have you returned portable batteries in the last 6 months?`,
+#          "disposal_location" = `Where do you mostly dispose of used batteries?`,
+#          "disposal_distance" = `How far do you have to walk to return batteries in meters?`,
+#          "injury_estimate" = `Risk to Human Life and Injury`,
+#          "infrastructure_damage_estimate" = `Major Property and Infrastructure Damage`,
+#          "pollution_estimate" = `Environmental Pollution`,
+#          "fin_losses_estimate" = `Severe Financial Losses`,
+#          "material_losses_estimate" = `Loss of raw material`)
+# 
+# #rename some more       
+# tidydata <- tidydata |> 
+#   rename("deposit_incentive_rating" = `Introducing a deposit of CHF 0.50 per battery.`,
+#          "distance_incentive_rating" = `Halving the distance to your next collection point.`,
+#          "education_incentive_rating" = `Education campaigns about the consequences of improper disposal.`,
+#          "removable_incentive_rating" = `Batteries can be removed from all devices without tools.`,
+#          "battery_fires_knowledge" = `Did you know that improper battery recycling causes increasingly more fires in waste facilities each year?`,
+#          "has_read_fire_text" = `Have you read the text in the description?`,
+#          "second_education_rating_after_reading" = `Rate the likelihood of an Education campaign with this information increasing your motivation to recycle.`) 
+# 
+# #education level tidy       
+# tidydata <- tidydata |> 
+#   mutate(education_level = str_remove(education_level, "Level")) |> 
+#   mutate(education_level = as.numeric(education_level))
+# 
+# #date, time, weekday conversion to seperate cols
+# tidydata <- tidydata |> 
+#   mutate(date = as_date(Timestamp)) |> 
+#   mutate(time = format(Timestamp, "%H:%M:%S")) |> 
+#   mutate(weekday = wday(Timestamp, label = TRUE, abb = FALSE)) |> 
+#   relocate(weekday) |> 
+#   relocate(time) |> 
+#   relocate(date) |> 
+#   select(!Timestamp) # remove old timestamp variable
+# 
+# #pivot measure ratings
+# tidydata <- tidydata |> 
+#   pivot_longer(cols = deposit_incentive_rating:removable_incentive_rating, names_to = "measure_type", values_to = "measure_rating")
+# 
+# #relocate new cols
+# tidydata <- tidydata |> 
+#   relocate(measure_type, .after = material_losses_estimate) |> 
+#   relocate(measure_rating, .after = measure_type)
+# 
+# #pivot importance estimates
+# tidydata <- tidydata |> 
+#   pivot_longer(cols = injury_estimate:material_losses_estimate, names_to = "importance_estimate_type", values_to = "importance_estimate_rating")
+
