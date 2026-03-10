@@ -12,13 +12,14 @@ energy_systems <- read_excel(tmp)
 
 
 # save raw data as CSV
-write_csv(energy_systems, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/raw_data/Energy Systems Excel/Complete_HC_EnergySystems.csv")
+write_csv(energy_systems, "data/raw_data/Energy Systems Excel/Complete_HC_EnergySystems.csv")
 
 #----------------------------------------------------
-  
+
 #kobo questionnaire
-kobo_questionnaire <- read_xlsx("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/raw_data/Kobo/Healthcare_Energy_Questionnaire_-_latest_version_-_English_en_-_2025-11-10-09-33-01.xlsx")
+kobo_questionnaire <- read_xlsx("data/raw_data/Kobo/Healthcare_Energy_Questionnaire_-_latest_version_-_English_en_-_2025-11-10-09-33-01.xlsx")
 
 
 # save raw data as CSV
-write_csv(kobo_questionnaire, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/raw_data/Kobo/Healthcare_Questionnaire.csv")
+write_csv(kobo_questionnaire, "data/raw_data/Kobo/Healthcare_Questionnaire.csv")
+
