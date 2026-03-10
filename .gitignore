@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+analysis/01-data_download.R
 "G:\.shortcut-targets-by-id\1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k\2025-msc-thesis-teufeng\analysis\HC_supply_dashboard.html"
 *.gsheet
 *.gslides

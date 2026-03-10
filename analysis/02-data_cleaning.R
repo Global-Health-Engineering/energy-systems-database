@@ -1,10 +1,18 @@
 library(tidyverse)
 library(googlesheets4)
 library(janitor)
+
+# Auto-detect base data path
+if (dir.exists("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data")) {
+  base_path <- "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data"
+} else {
+  base_path <- "data"
+}
+
 #excel energy systems
 
 #read data from csv
-tidy_energy_systems <- read_csv("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/raw_data/Energy Systems Excel/Complete_HC_EnergySystems.csv") |> 
+tidy_energy_systems <- read_csv(file.path(base_path, "raw_data/Energy Systems Excel/Complete_HC_EnergySystems.csv")) |>
   clean_names()
 
 #data tidying ------------------------------------------
@@ -33,8 +41,8 @@ tidy_energy_systems <- tidy_energy_systems |>
 
 
 #save files in processed folder
-write_csv(tidy_energy_systems, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/HC_EnergySystems.csv")
-write_rds(tidy_energy_systems, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/HC_EnergySystems.rds")
+write_csv(tidy_energy_systems, file.path(base_path, "derived_data/HC_EnergySystems.csv"))
+write_rds(tidy_energy_systems, file.path(base_path, "derived_data/HC_EnergySystems.rds"))
 
 #--------------------------------------------------------------------------
 #--------------------------------------------------------------------------
@@ -42,12 +50,12 @@ write_rds(tidy_energy_systems, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRl
 #kobo questionnaire
 
 #Read data from csv
-kobo_questionnaire <- read_csv("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/raw_data/Kobo/Healthcare_Questionnaire.csv")
+kobo_questionnaire <- read_csv(file.path(base_path, "raw_data/Kobo/Healthcare_Questionnaire.csv"))
 
 #column remapping------------------------------------------------------------
 
 # colnames remapping 1) Load the mapping (with columns: original_name, short_name)
-mapping <- read_csv("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/raw_data/Kobo/column_mapping.csv")
+mapping <- read_csv(file.path(base_path, "raw_data/Kobo/column_mapping.csv"))
 
 # 2) Replace column names using the mapping
 names(kobo_questionnaire) <- mapping$short_name[match(names(kobo_questionnaire), mapping$original_name)]
@@ -78,8 +86,8 @@ sum(kobo_questionnaire == -99, na.rm = TRUE)
 
 
 #save files in processed folder----------------------
-write_csv(kobo_questionnaire, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Kobo_Questionnaire.csv")
-write_rds(kobo_questionnaire, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Kobo_Questionnaire.rds")
+write_csv(kobo_questionnaire, file.path(base_path, "derived_data/Kobo_Questionnaire.csv"))
+write_rds(kobo_questionnaire, file.path(base_path, "derived_data/Kobo_Questionnaire.rds"))
 
 
 #--------------------------------------------------------------------------
@@ -108,8 +116,8 @@ message("Unmatched energy rows: ", nrow(unmatched_energy))
 message("Questionnaire-only facilities: ", nrow(unmatched_questionnaire))
 
 # 4) Save result
-write_csv(combined, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Combined_Questionnaire_Systems.csv")
-write_rds(combined, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Combined_Questionnaire_Systems.rds")
+write_csv(combined, file.path(base_path, "derived_data/Combined_Questionnaire_Systems.csv"))
+write_rds(combined, file.path(base_path, "derived_data/Combined_Questionnaire_Systems.rds"))
 
 
 
