@@ -1,10 +1,6 @@
 library(tidyverse)
 library(googlesheets4)
-library(lubridate)
 library(janitor)
-library(readr)
-library(dplyr)
-
 #excel energy systems
 
 #read data from csv

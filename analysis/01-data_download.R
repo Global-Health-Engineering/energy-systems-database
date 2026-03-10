@@ -22,3 +22,4 @@ kobo_questionnaire <- read_xlsx("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoR
 
 # save raw data as CSV
 write_csv(kobo_questionnaire, "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/raw_data/Kobo/Healthcare_Questionnaire.csv")
+
