@@ -43,18 +43,11 @@ library(ggrepel)
 
 
 
-# Auto-detect base data path
-if (dir.exists("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data")) {
-  base_path <- "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data"
-} else {
-  base_path <- "data"
-}
+df <- read_rds("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/HC_EnergySystems.rds")
 
-df <- read_rds(file.path(base_path, "derived_data/HC_EnergySystems.rds"))
+kobo_questionnaire <- read_rds("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Kobo_Questionnaire.rds")
 
-kobo_questionnaire <- read_rds(file.path(base_path, "derived_data/Kobo_Questionnaire.rds"))
-
-combined <- read_rds(file.path(base_path, "derived_data/Combined_Questionnaire_Systems.rds"))
+combined <- read_rds("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Combined_Questionnaire_Systems.rds")
 ```
 
 # Energy Stacking
@@ -1041,6 +1034,95 @@ df_analysis <- funder_diversity |>
   left_join(mfr_diversity,  by = "facility_id") |>
   left_join(func_ratio,     by = "facility_id") |>
   left_join(facility_meta,  by = "facility_id")
+
+# Funder diversity (Simpson) vs. non-functionality
+cor.test(df_analysis$simpson_diversity, df_analysis$prop_nonfunc,
+         method = "spearman")
+
+# Raw funder count vs. non-functionality (simpler, more interpretable)
+cor.test(df_analysis$n_funders, df_analysis$prop_nonfunc,
+         method = "spearman")
+
+# Manufacturer brand diversity vs. non-functionality
+cor.test(df_analysis$simpson_mfr, df_analysis$prop_nonfunc,
+         method = "spearman")
+```
+
+```{r}
+plot_scatter <- function(data, x_var, x_lab) {
+  ggplot(data, aes(x = .data[[x_var]], y = prop_nonfunc,
+                   colour = region, label = facility_clean)) +
+    geom_point(size = 4, alpha = 0.8) +
+    geom_smooth(method = "lm", se = TRUE,
+                colour = "grey40", linetype = "dashed", linewidth = 0.7) +
+    geom_text_repel(size = 2.8, max.overlaps = 15) +
+    scale_y_continuous(labels = percent_format(accuracy = 1),
+                       limits = c(0, 1)) +
+    scale_color_colorblind() +
+    labs(x = x_lab,
+         y = "Proportion of non-functional systems",
+         colour = "Region") +
+    theme_minimal(base_size = 11)
+}
+
+p1 <- plot_scatter(df_analysis, "simpson_diversity",
+                   "Funder diversity (Simpson index)")
+p2 <- plot_scatter(df_analysis, "n_funders",
+                   "Number of distinct funders")
+p3 <- plot_scatter(df_analysis, "simpson_mfr",
+                   "Manufacturer diversity (Simpson index)")
+
+p1 / p2 / p3 +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+```
+
+```{r}
+donor_map <- df |>
+  mutate(
+    funding_chr = as.character(funding),
+    funding_chr = na_if(funding_chr, "NA"),
+    funding_chr = na_if(funding_chr, ""),
+    funding_chr = if_else(is.na(funding_chr), "__missing__", funding_chr)
+  ) |>
+  filter(funding_chr != "MoH", funding_chr != "__missing__") |>
+  count(funding_chr, sort = TRUE) |>
+  mutate(funding_label = paste0("Donor ", LETTERS[row_number()])) |>
+  select(funding_chr, funding_label)
+
+df_bar <- df |>
+  mutate(
+    funding_chr = as.character(funding),
+    funding_chr = na_if(funding_chr, "NA"),
+    funding_chr = na_if(funding_chr, ""),
+    funding_chr = if_else(is.na(funding_chr), "__missing__", funding_chr)
+  ) |>
+  left_join(donor_map, by = "funding_chr") |>
+  mutate(
+    funding_recode = case_when(
+      funding_chr == "MoH"         ~ "DHO/MoH/Gov",
+      funding_chr == "__missing__" ~ "Unknown",
+      TRUE                         ~ funding_label
+    )
+  ) |>
+  left_join(
+    df_analysis |> select(facility_id, facility_clean, simpson_diversity),
+    by = "facility_id"
+  ) |>
+  mutate(
+    facility_clean = fct_reorder(facility_clean, simpson_diversity)
+  )
+
+ggplot(df_bar,
+       aes(x = facility_clean, fill = fct_infreq(funding_recode))) +
+  geom_bar(position = position_stack(reverse = TRUE)) +
+  coord_flip() +
+  labs(x = NULL,
+       y = "Energy System Count",
+       fill = "Initial Funder",
+       subtitle = "Ordered by funder diversity (most fragmented at top)") +
+  theme_minimal() +
+  scale_fill_viridis_d(option = "H")
 ```
 
 # Geographic
