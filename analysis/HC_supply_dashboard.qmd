@@ -1035,11 +1035,8 @@ df_analysis <- funder_diversity |>
   left_join(func_ratio,     by = "facility_id") |>
   left_join(facility_meta,  by = "facility_id")
 
-<<<<<<< HEAD
 # Funder diversity (Simpson) vs. non-functionality
-=======
   # Funder diversity (Simpson) vs. non-functionality
->>>>>>> 3ba0ff7d485bfad53dad281d5ae4e109babbb41b
 cor.test(df_analysis$simpson_diversity, df_analysis$prop_nonfunc,
          method = "spearman")
 
@@ -1050,7 +1047,6 @@ cor.test(df_analysis$n_funders, df_analysis$prop_nonfunc,
 # Manufacturer brand diversity vs. non-functionality
 cor.test(df_analysis$simpson_mfr, df_analysis$prop_nonfunc,
          method = "spearman")
-<<<<<<< HEAD
 ```
 
 ```{r}
@@ -1128,8 +1124,6 @@ ggplot(df_bar,
        subtitle = "Ordered by funder diversity (most fragmented at top)") +
   theme_minimal() +
   scale_fill_viridis_d(option = "H")
-=======
->>>>>>> 3ba0ff7d485bfad53dad281d5ae4e109babbb41b
 ```
 
 ```{r}
