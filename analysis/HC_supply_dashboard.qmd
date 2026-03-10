@@ -38,6 +38,8 @@ library(DT) #Data objects in R can be rendered as HTML tables using the JavaScri
 library(lubridate) #tools to make dates parsing and manipulation easier
 library(kableExtra)
 library(patchwork)
+library(ggrepel)
+
 
 
 
@@ -926,6 +928,112 @@ ggplot(df, aes(x = fct_rev(fct_infreq(facility_name)), fill = brand)) +
        y = "Count",
        fill = "Manufacturer") +
   theme_minimal()
+```
+
+### Variation Index {.tabset}
+
+```{r}
+#| title: "Variation "
+
+facility_ranked <- df |>
+  count(facility_name, name = "system_count") |>
+  arrange(desc(system_count)) |>
+  mutate(facility_clean = paste0("Facility ", LETTERS[row_number()]))
+
+funder_diversity <- df |>
+  mutate(
+    funding_clean = case_when(
+      funding %in% c("MoH", "Staff", "EGPAF") ~ "DHO/MoH/Gov",
+      is.na(funding) | funding == ""           ~ "Unknown",
+      TRUE                                     ~ funding
+    )
+  ) |>
+  filter(funding_clean != "Unknown") |>          # exclude unknown from index
+  group_by(facility_id, funding_clean) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(facility_id) |>
+  mutate(p_i = n / sum(n)) |>
+  summarise(
+    n_systems         = sum(n),
+    n_funders         = n_distinct(funding_clean),
+    simpson_diversity = 1 - sum(p_i^2),
+    .groups = "drop"
+  )
+
+funder_diversity <- df |>
+  mutate(
+    funding_clean = case_when(
+      funding %in% c("MoH", "Staff", "EGPAF") ~ "DHO/MoH/Gov",
+      is.na(funding) | funding == ""           ~ "Unknown",
+      TRUE                                     ~ funding
+    )
+  ) |>
+  filter(funding_clean != "Unknown") |>          # exclude unknown from index
+  group_by(facility_id, funding_clean) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(facility_id) |>
+  mutate(p_i = n / sum(n)) |>
+  summarise(
+    n_systems         = sum(n),
+    n_funders         = n_distinct(funding_clean),
+    simpson_diversity = 1 - sum(p_i^2),
+    .groups = "drop"
+  )
+
+mfr_diversity <- df |>
+  mutate(
+    component_brand = case_when(
+      !is.na(inverter_manufacturer) ~ inverter_manufacturer,
+      !is.na(brand)                 ~ brand,
+      TRUE                          ~ NA_character_
+    )
+  ) |>
+  filter(!is.na(component_brand), component_brand != "Unknown") |>
+  group_by(facility_id, component_brand) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(facility_id) |>
+  mutate(p_i = n / sum(n)) |>
+  summarise(
+    n_brands    = n_distinct(component_brand),
+    simpson_mfr = 1 - sum(p_i^2),
+    .groups = "drop"
+  )
+
+func_ratio <- df |>
+  filter(!is.na(functional_now)) |>
+  mutate(
+    is_nonfunctional = case_when(
+      functional_now == "No"        ~ 1,
+      functional_now == "Partially" ~ 0.5,
+      functional_now == "Yes"       ~ 0
+    )
+  ) |>
+  group_by(facility_id) |>
+  summarise(
+    n_systems_total = n(),
+    prop_nonfunc    = mean(is_nonfunctional),
+    .groups = "drop"
+  )
+
+df_analysis <- funder_diversity |>
+  left_join(mfr_diversity,    by = "facility_id") |>
+  left_join(func_ratio,       by = "facility_id") |>
+  left_join(facility_ranked |> select(facility_name, facility_clean),
+            by = character())  # needs facility_id bridge via df first
+
+# Safer: bring facility_name from df, then join
+facility_meta <- df |>
+  distinct(facility_id, facility_name) |>
+  left_join(facility_ranked, by = "facility_name") |>
+  left_join(
+    kobo_questionnaire |> select(facility_id, region, district),
+    by = "facility_id"
+  )
+
+df_analysis <- funder_diversity |>
+  left_join(mfr_diversity,  by = "facility_id") |>
+  left_join(func_ratio,     by = "facility_id") |>
+  left_join(facility_meta,  by = "facility_id")
 ```
 
 # Geographic
