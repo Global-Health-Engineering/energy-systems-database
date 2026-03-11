@@ -967,10 +967,10 @@ p_manufacturers_per_facility
 ggsave(file.path(plots_path, "Manufacturers_in_each_Facility.png"), p_manufacturers_per_facility, width = 10, height = 7)
 ```
 
-### Variation Index {.tabset}
+### Fragmentation {.tabset}
 
 ```{r}
-#| title: "Fragmentation"
+#| title: "Fragmentation Data Prep"
 
 facility_ranked <- df |>
   count(facility_name, name = "system_count") |>
@@ -1138,12 +1138,14 @@ p1 <- plot_scatter(df_analysis, "simpson_diversity",
                    "Funder diversity (Simpson index)")
 p2 <- plot_scatter(df_analysis, "n_funders",
                    "Number of distinct funders")
+p3 <- plot_scatter(df_analysis, "simpson_mfr",
+                   "Manufacturer diversity (Simpson index)")
 
-p_fragmentation_scatter <- (p1 / p2) +
+p_fragmentation_scatter <- (p1 / p2 / p3) +
 plot_layout(guides = "collect") &
 theme(legend.position = "bottom")
 p_fragmentation_scatter
-ggsave(file.path(plots_path, "Fragmentation_Scatter.png"), p_fragmentation_scatter, width = 10, height = 12)
+ggsave(file.path(plots_path, "Fragmentation_Scatter.png"), p_fragmentation_scatter, width = 10, height = 18)
 ```
 
 ```{r}

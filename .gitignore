@@ -2,6 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
+
+# Data files — raw and derived data (sensitive health facility data)
+data/raw_data/
+data/derived_data/*.rds
+data/derived_data/*.csv
+data/derived_data/*.xlsx
 analysis/01-data_download.R
 "G:\.shortcut-targets-by-id\1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k\2025-msc-thesis-teufeng\analysis\HC_supply_dashboard.html"
 *.gsheet
