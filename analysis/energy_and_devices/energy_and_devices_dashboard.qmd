@@ -1,0 +1,314 @@
+---
+title: "Energy Systems & Medical Devices"
+author: "Gian Teufen"
+format:
+  dashboard:
+    nav-buttons: []
+---
+
+```{r setup}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+library(gt)
+library(ggrepel)
+library(scales)
+
+# ── Paths ─────────────────────────────────────────────────────────────────────
+proj_root         <- normalizePath(file.path(getwd(), "../.."))
+energy_data_path  <- file.path(proj_root, "data/derived_data")
+devices_data_path <- "/home/teufeng/med-dev-database/data/derived_data"
+
+plots_path <- file.path(energy_data_path, "plots/energy_and_devices")
+dir.create(plots_path, showWarnings = FALSE, recursive = TRUE)
+
+# ── Load data ─────────────────────────────────────────────────────────────────
+energy_raw  <- read_rds(file.path(energy_data_path, "Combined_Questionnaire_Systems.rds"))
+devices_raw <- read_rds(file.path(devices_data_path, "df_ana.rds"))
+
+energy_raw  <- energy_raw  |> mutate(facility_id = as.integer(facility_id))
+devices_raw <- devices_raw |> mutate(facility_id = as.integer(facility_id))
+
+# ── Facility-level energy summary ─────────────────────────────────────────────
+energy_fac <- energy_raw |>
+  group_by(facility_id, facility_name = facility_name_energy, district, region) |>
+  summarise(
+    n_systems        = n(),
+    n_functional     = sum(functional_now == "Yes",        na.rm = TRUE),
+    n_partial        = sum(functional_now == "Partially",  na.rm = TRUE),
+    n_nonfunctional  = sum(functional_now == "No",         na.rm = TRUE),
+    pct_functional   = n_functional / n_systems,
+    has_solar        = any(str_detect(type, "Solar"),      na.rm = TRUE),
+    has_grid         = any(type == "Grid",                 na.rm = TRUE),
+    has_generator    = any(type == "Generator",            na.rm = TRUE),
+    n_energy_sources = sum(c(has_solar, has_grid, has_generator)),
+    avg_nights_no_light = first(na.omit(night_treatments_in_darkness_monthly)),
+    n_funders_energy = n_distinct(funding[!is.na(funding)]),
+    mean_install_year = {
+      yrs <- suppressWarnings(as.numeric(installation_year))
+      yrs <- yrs[!is.na(yrs) & yrs > 2000]
+      if (length(yrs) > 0) mean(yrs) else NA_real_
+    },
+    .groups = "drop"
+  )
+
+# ── Facility-level device summary ─────────────────────────────────────────────
+devices_fac <- devices_raw |>
+  filter(supercategory %in% c("Medical Devices", "ICT & Electronics", "Utilities")) |>
+  group_by(facility_id) |>
+  summarise(
+    n_devices_total    = n(),
+    n_fully_functional = sum(functionality == "fully functional",  na.rm = TRUE),
+    n_dysfunctional    = sum(functionality == "dysfunctional",     na.rm = TRUE),
+    n_partial_dev      = sum(functionality == "partly functional", na.rm = TRUE),
+    pct_dev_functional = n_fully_functional / n_devices_total,
+    pct_dysfunctional  = n_dysfunctional    / n_devices_total,
+    n_med_devices      = sum(supercategory == "Medical Devices"),
+    pct_med_functional = sum(supercategory == "Medical Devices" &
+                               functionality == "fully functional", na.rm = TRUE) /
+                         pmax(sum(supercategory == "Medical Devices"), 1),
+    # Share of devices that need electricity (AC or DC)
+    n_powered          = sum(supercategory == "Medical Devices" &
+                               power_type %in% c("AC", "DC", "both"), na.rm = TRUE),
+    pct_powered        = n_powered / pmax(n_med_devices, 1),
+    n_funders_devices  = n_distinct(funding_primary[
+      !is.na(funding_primary) &
+        !funding_primary %in% c("not applicable", "unknown")]),
+    simpson_funder_dev = {
+      f <- funding_primary[!is.na(funding_primary) &
+                             !funding_primary %in% c("not applicable", "unknown")]
+      if (length(f) == 0) NA_real_
+      else { p <- table(f) / length(f); 1 - sum(p^2) }
+    },
+    mean_delivery_year = {
+      yrs <- suppressWarnings(as.numeric(year_delivered))
+      yrs <- yrs[!is.na(yrs) & yrs > 2000]
+      if (length(yrs) > 0) mean(yrs) else NA_real_
+    },
+    .groups = "drop"
+  )
+
+# ── Combined ──────────────────────────────────────────────────────────────────
+combined <- inner_join(energy_fac, devices_fac, by = "facility_id") |>
+  arrange(facility_id)
+
+# ── Theme ─────────────────────────────────────────────────────────────────────
+eth_blue  <- "#004D80"
+eth_light <- "#0076BA"
+# Okabe-Ito colorblind-safe palette
+clr_yes   <- "#009E73"   # bluish-green
+clr_no    <- "#D55E00"   # vermillion
+clr_part  <- "#E69F00"   # orange
+
+theme_eth <- function() {
+  theme_minimal(base_size = 12) +
+    theme(
+      plot.title       = element_text(colour = eth_blue, face = "bold", size = 13),
+      plot.subtitle    = element_text(colour = "grey40", size = 10),
+      axis.title       = element_text(colour = "grey30", size = 10),
+      panel.grid.minor = element_blank()
+    )
+}
+```
+
+# Overview
+
+## Row {height="20%"}
+
+```{r}
+#| content: valuebox
+#| title: "Facilities"
+list(icon = "hospital", color = "primary", value = nrow(combined))
+```
+
+```{r}
+#| content: valuebox
+#| title: "Energy systems surveyed"
+list(icon = "lightning-charge", color = "info", value = sum(energy_fac$n_systems))
+```
+
+```{r}
+#| content: valuebox
+#| title: "Medical & support devices"
+list(icon = "cpu", color = "secondary", value = sum(devices_fac$n_devices_total))
+```
+
+```{r}
+#| content: valuebox
+#| title: "Facilities ≥1 functional energy system"
+list(icon = "check-circle", color = "success", value = sum(combined$n_functional >= 1))
+```
+
+## Row {height="80%"}
+
+```{r}
+#| title: "Energy vs. device functionality"
+
+p_overview <- combined |>
+  ggplot(aes(x = pct_functional, y = pct_dev_functional)) +
+  geom_smooth(method = "lm", se = TRUE, colour = eth_blue,
+              fill = eth_light, alpha = 0.15, linewidth = 0.8) +
+  geom_point(aes(size = n_devices_total, colour = pct_functional), alpha = 0.85) +
+  geom_text_repel(aes(label = facility_name), size = 3,
+                  colour = "grey30", max.overlaps = 20) +
+  scale_colour_viridis_c(labels = percent, name = "Energy\nfunctionality",
+                         option = "D", direction = 1) +
+  scale_x_continuous(labels = percent, limits = c(0, 1.05), expand = c(0, 0)) +
+  scale_y_continuous(labels = percent, limits = c(0, 1.05), expand = c(0, 0)) +
+  scale_size_continuous(name = "Total devices", range = c(3, 10)) +
+  labs(
+    title    = "Energy system functionality vs. device functionality",
+    subtitle = "Each point = one health facility; size = total devices surveyed",
+    x = "% energy systems fully functional",
+    y = "% devices fully functional"
+  ) +
+  theme_eth()
+
+ggsave(file.path(plots_path, "Overview_Energy_vs_Device_Functionality.png"),
+       p_overview, width = 10, height = 7)
+p_overview
+```
+
+# Cross-Analysis
+
+## Row {.tabset}
+
+### Energy source diversity vs. device functionality
+
+```{r}
+#| title: "Energy source diversity vs. device functionality"
+
+p_diversity <- combined |>
+  filter(!is.na(simpson_funder_dev)) |>
+  ggplot(aes(x = simpson_funder_dev, y = pct_dev_functional)) +
+  geom_smooth(method = "lm", se = TRUE, colour = eth_blue,
+              fill = eth_light, alpha = 0.15, linewidth = 0.8) +
+  geom_point(aes(colour = pct_functional, size = n_devices_total), alpha = 0.85) +
+  geom_text_repel(aes(label = facility_name), size = 2.8,
+                  colour = "grey35", max.overlaps = 12) +
+  scale_colour_viridis_c(labels = percent, name = "Energy\nfunctionality",
+                         option = "D", direction = 1) +
+  scale_x_continuous(limits = c(0, 1)) +
+  scale_y_continuous(labels = percent, limits = c(0, 1)) +
+  scale_size_continuous(range = c(3, 9), name = "Devices") +
+  labs(
+    title    = "Device funder diversity vs. device functionality",
+    subtitle = "Simpson diversity index of device funders per facility",
+    x = "Device funder diversity (Simpson index)",
+    y = "% devices fully functional"
+  ) +
+  theme_eth()
+
+ggsave(file.path(plots_path, "Cross_Device_Funder_Diversity_vs_Functionality.png"),
+       p_diversity, width = 9, height = 6)
+p_diversity
+```
+
+### Funder fragmentation: energy vs. devices
+
+```{r}
+#| title: "Funder fragmentation: energy vs. devices"
+
+p_funder_frag <- combined |>
+  ggplot(aes(x = n_funders_energy, y = n_funders_devices)) +
+  geom_smooth(method = "lm", se = TRUE, colour = eth_blue,
+              fill = eth_light, alpha = 0.15, linewidth = 0.8) +
+  geom_point(aes(colour = pct_dev_functional, size = n_devices_total), alpha = 0.85) +
+  geom_text_repel(aes(label = facility_name), size = 3,
+                  colour = "grey30", max.overlaps = 15) +
+  scale_colour_viridis_c(labels = percent, name = "Device\nfunctionality",
+                         option = "D", direction = 1) +
+  scale_size_continuous(range = c(3, 9), name = "Devices") +
+  labs(
+    title    = "Funder fragmentation: energy systems vs. medical devices",
+    subtitle = "Facilities fragmented in energy funding tend to be fragmented in device funding too",
+    x = "Number of distinct energy funders",
+    y = "Number of distinct device funders"
+  ) +
+  theme_eth()
+
+ggsave(file.path(plots_path, "Cross_Funder_Fragmentation_Energy_vs_Devices.png"),
+       p_funder_frag, width = 9, height = 6)
+p_funder_frag
+```
+
+### Energy system age vs. device delivery year
+
+```{r}
+#| title: "Energy system age vs. device delivery year"
+
+p_age <- combined |>
+  filter(!is.na(mean_install_year), !is.na(mean_delivery_year)) |>
+  ggplot(aes(x = mean_install_year, y = mean_delivery_year)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed",
+              colour = "grey60", linewidth = 0.6) +
+  geom_point(aes(colour = pct_dev_functional, size = n_devices_total), alpha = 0.85) +
+  geom_text_repel(aes(label = facility_name), size = 3,
+                  colour = "grey30", max.overlaps = 15) +
+  scale_colour_viridis_c(labels = percent, name = "Device\nfunctionality",
+                         option = "D", direction = 1) +
+  scale_size_continuous(range = c(3, 9), name = "Devices") +
+  labs(
+    title    = "Mean energy system installation year vs. mean device delivery year",
+    subtitle = "Points above the diagonal received devices after energy infrastructure; dashed line = simultaneous",
+    x = "Mean installation year of energy systems",
+    y = "Mean delivery year of medical devices"
+  ) +
+  theme_eth()
+
+ggsave(file.path(plots_path, "Cross_Energy_Age_vs_Device_Delivery_Year.png"),
+       p_age, width = 9, height = 6)
+p_age
+```
+
+### Facility summary table
+
+```{r}
+#| title: "Facility summary table"
+
+combined |>
+  select(
+    facility_id, facility_name, district,
+    n_systems, pct_functional,
+    n_devices_total, pct_dev_functional, pct_dysfunctional,
+    n_energy_sources, n_funders_energy, n_funders_devices,
+    avg_nights_no_light
+  ) |>
+  arrange(facility_id) |>
+  gt() |>
+  tab_header(
+    title    = "Facility-level summary: energy systems & medical devices",
+    subtitle = "Combined from energy-systems-database and med-dev-database"
+  ) |>
+  cols_label(
+    facility_id         = "ID",
+    facility_name       = "Facility",
+    district            = "District",
+    n_systems           = "Energy systems",
+    pct_functional      = "% functional (energy)",
+    n_devices_total     = "Devices",
+    pct_dev_functional  = "% functional (devices)",
+    pct_dysfunctional   = "% dysfunctional",
+    n_energy_sources    = "Energy sources",
+    n_funders_energy    = "Energy funders",
+    n_funders_devices   = "Device funders",
+    avg_nights_no_light = "Dark nights/mo"
+  ) |>
+  fmt_percent(columns = c(pct_functional, pct_dev_functional,
+                           pct_dysfunctional), decimals = 0) |>
+  fmt_number(columns = avg_nights_no_light, decimals = 1) |>
+  data_color(columns = pct_functional,
+             palette = c(clr_no, "#FFF3CD", clr_yes)) |>
+  data_color(columns = pct_dev_functional,
+             palette = c(clr_no, "#FFF3CD", clr_yes)) |>
+  tab_options(
+    table.border.top.color             = eth_blue,
+    table.border.bottom.color          = eth_blue,
+    column_labels.border.top.color    = eth_light,
+    column_labels.border.bottom.color = eth_light
+  )
+```

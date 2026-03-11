@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Gian Teufen">
+
+<title>Energy Systems &amp; Medical Devices</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="energy_and_devices_dashboard_files/libs/clipboard/clipboard.min.js"></script>
+<script src="energy_and_devices_dashboard_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="energy_and_devices_dashboard_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="energy_and_devices_dashboard_files/libs/quarto-html/popper.min.js"></script>
+<script src="energy_and_devices_dashboard_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="energy_and_devices_dashboard_files/libs/quarto-html/anchor.min.js"></script>
+<link href="energy_and_devices_dashboard_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="energy_and_devices_dashboard_files/libs/quarto-html/quarto-syntax-highlighting-7c69b197886ae2a34062761d21e44731.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="energy_and_devices_dashboard_files/libs/quarto-html/quarto-syntax-highlighting-dark-2a9a3f180cf500eef5b976fdc6f22fdf.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="energy_and_devices_dashboard_files/libs/quarto-html/quarto-syntax-highlighting-7c69b197886ae2a34062761d21e44731.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="energy_and_devices_dashboard_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="energy_and_devices_dashboard_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="energy_and_devices_dashboard_files/libs/bootstrap/bootstrap-3ae139f35e14aaefb2211f36e5701c9b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="energy_and_devices_dashboard_files/libs/bootstrap/bootstrap-dark-3ae139f35e14aaefb2211f36e5701c9b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="energy_and_devices_dashboard_files/libs/bootstrap/bootstrap-3ae139f35e14aaefb2211f36e5701c9b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script src="energy_and_devices_dashboard_files/libs/quarto-dashboard/quarto-dashboard.js"></script>
+<script src="energy_and_devices_dashboard_files/libs/quarto-dashboard/stickythead.js"></script>
+
+
+
+<script src="energy_and_devices_dashboard_files/libs/quarto-dashboard/web-components.js" type="module"></script>
+<script src="energy_and_devices_dashboard_files/libs/quarto-dashboard/components.js"></script>
+
+
+
+</head>
+
+<body class="quarto-dashboard dashboard-fill fullcontent quarto-light">
+
+<header id="quarto-dashboard-header">
+<nav class="navbar navbar-expand-md slim" data-bs-theme="dark">
+  <div class="navbar-container container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-controls="dashboard-collapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>    
+
+
+    <div class="navbar-brand-container">
+
+
+      <div class="navbar-title">
+        <div class="navbar-title-text"><a href="#">Energy Systems &amp; Medical Devices</a></div>
+        
+        <div class="navbar-author">Gian Teufen</div>
+      </div>
+    </div>
+<div id="dashboard-collapse" class="navbar-collapse collapse"><ul class="navbar-nav navbar-nav-scroll me-auto" role="tablist"><li class="nav-item" role="presentation"><a id="tab-overview" class="nav-link active" data-bs-toggle="tab" role="tab" data-bs-target="#overview" data-scrolling="false" href="#overview" aria-controls="overview" aria-selected="true"><span class="nav-link-text">Overview</span></a></li><li class="nav-item" role="presentation"><a id="tab-cross-analysis" class="nav-link" data-bs-toggle="tab" role="tab" data-bs-target="#cross-analysis" data-scrolling="false" href="#cross-analysis" aria-controls="cross-analysis" aria-selected="false"><span class="nav-link-text">Cross-Analysis</span></a></li></ul></div></div>
+</nav>
+</header>
+<div class="page-layout-custom quarto-dashboard-content bslib-gap-spacing html-fill-container bslib-page-fill quarto-dashboard-pages">  
+
+<div class="bslib-grid-item html-fill-item tab-content bslib-grid" data-layout="fill" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
+<div id="overview" class="dashboard-page tab-pane show active html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-overview">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 20fr) minmax(3em, 80fr); grid-auto-columns: minmax(0, 1fr);">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr) minmax(3em, 1fr) minmax(3em, 1fr) minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-primary showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div data-icon="hospital" class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-showcase html-fill-item html-fill-container">
+
+<i class="bi bi-hospital"></i></div>
+<div class="value-box-area">
+<p class="value-box-title">
+Facilities
+</p>
+<p class="value-box-value">
+19
+</p>
+</div>
+</div>
+</div>
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-info showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div data-icon="lightning-charge" class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-showcase html-fill-item html-fill-container">
+
+<i class="bi bi-lightning-charge"></i></div>
+<div class="value-box-area">
+<p class="value-box-title">
+Energy systems surveyed
+</p>
+<p class="value-box-value">
+123
+</p>
+</div>
+</div>
+</div>
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-secondary showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div data-icon="cpu" class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-showcase html-fill-item html-fill-container">
+
+<i class="bi bi-cpu"></i></div>
+<div class="value-box-area">
+<p class="value-box-title">
+Medical &amp; support devices
+</p>
+<p class="value-box-value">
+1258
+</p>
+</div>
+</div>
+</div>
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div class="card valuebox cell html-fill-item html-fill-container bslib-card bslib-value-box bg-success showcase-left-center" data-bslib-card-init="" data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<div data-icon="check-circle" class="html-fill-item html-fill-container value-box-grid">
+<div class="value-box-showcase html-fill-item html-fill-container">
+
+<i class="bi bi-check-circle"></i></div>
+<div class="value-box-area">
+<p class="value-box-title">
+Facilities ≥1 functional energy system
+</p>
+<p class="value-box-value">
+19
+</p>
+</div>
+</div>
+</div>
+<script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-title="Energy vs. device functionality" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title"><span style="display: inline">
+Energy vs.&nbsp;device functionality
+</span></div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="energy_and_devices_dashboard_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+</div>
+</div>
+<div id="cross-analysis" class="dashboard-page tab-pane grid-skip html-fill-item html-fill-container" data-orientation="rows" aria-labelledby="tab-cross-analysis">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-rows: minmax(3em, 1fr); grid-auto-columns: minmax(0, 1fr);">
+<div class="card tabset html-fill-item html-fill-container bslib-card" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header dashboard-card-no-title bslib-navs-card-title">
+
+<ul class="nav nav-tabs card-header-tabs" role="tablist" data-tabsetid="card-tabset-6"><li class="nav-item" role="presentation"><a href="#card-tabset-6-1" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Energy source diversity vs.&nbsp;device functionality" aria-selected="true" class="nav-link active">Energy source diversity vs.&nbsp;device functionality</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-6-2" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Funder fragmentation: energy vs.&nbsp;devices" aria-selected="false" class="nav-link">Funder fragmentation: energy vs.&nbsp;devices</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-6-3" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Energy system age vs.&nbsp;device delivery year" aria-selected="false" class="nav-link">Energy system age vs.&nbsp;device delivery year</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-6-4" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Facility summary table" aria-selected="false" class="nav-link">Facility summary table</a></li></ul></div>
+
+
+
+
+<div class="tab-content html-fill-item html-fill-container" data-tabset-id="card-tabset-6"><div class="tab-pane active show html-fill-item html-fill-container" role="tabpanel" id="card-tabset-6-1"><div class="card-body html-fill-item html-fill-container" data-title="Energy source diversity vs.&nbsp;device functionality">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-title="Energy source diversity vs. device functionality" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title"><span style="display: inline">
+Energy source diversity vs.&nbsp;device functionality
+</span></div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="energy_and_devices_dashboard_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+</div></div><div class="tab-pane html-fill-item html-fill-container" role="tabpanel" id="card-tabset-6-2"><div class="card-body html-fill-item html-fill-container" data-title="Funder fragmentation: energy vs.&nbsp;devices">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-title="Funder fragmentation: energy vs. devices" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title"><span style="display: inline">
+Funder fragmentation: energy vs.&nbsp;devices
+</span></div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="energy_and_devices_dashboard_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+</div></div><div class="tab-pane html-fill-item html-fill-container" role="tabpanel" id="card-tabset-6-3"><div class="card-body html-fill-item html-fill-container" data-title="Energy system age vs.&nbsp;device delivery year">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-title="Energy system age vs. device delivery year" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title"><span style="display: inline">
+Energy system age vs.&nbsp;device delivery year
+</span></div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<img src="energy_and_devices_dashboard_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid quarto-dashboard-img-contain">
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+</div></div><div class="tab-pane html-fill-item html-fill-container" role="tabpanel" id="card-tabset-6-4"><div class="card-body html-fill-item html-fill-container" data-title="Facility summary table">
+<div class="html-fill-item html-fill-container bslib-grid" style="display: grid; grid-template-columns: minmax(3em, 1fr);
+grid-auto-rows: minmax(0, 1fr);">
+<div class="card cell html-fill-item html-fill-container bslib-card" data-title="Facility summary table" data-bslib-card-init="" data-require-bs-caller="card()" data-full-screen="false">
+<div class="card-header"><div class="card-title"><span style="display: inline">
+Facility summary table
+</span></div></div>
+<div class="card-body html-fill-item html-fill-container">
+<div class="cell-output-display html-fill-item html-fill-container">
+<div id="yyhdjzdouq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="html-fill-item html-fill-container">
+<style>#yyhdjzdouq table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#yyhdjzdouq thead, #yyhdjzdouq tbody, #yyhdjzdouq tfoot, #yyhdjzdouq tr, #yyhdjzdouq td, #yyhdjzdouq th {
+  border-style: none;
+}
+
+#yyhdjzdouq p {
+  margin: 0;
+  padding: 0;
+}
+
+#yyhdjzdouq .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #004D80;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #004D80;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#yyhdjzdouq .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#yyhdjzdouq .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#yyhdjzdouq .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #0076BA;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#yyhdjzdouq .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#yyhdjzdouq .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#yyhdjzdouq .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#yyhdjzdouq .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #0076BA;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#yyhdjzdouq .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#yyhdjzdouq .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#yyhdjzdouq .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#yyhdjzdouq .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#yyhdjzdouq .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#yyhdjzdouq .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#yyhdjzdouq .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yyhdjzdouq .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#yyhdjzdouq .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#yyhdjzdouq .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#yyhdjzdouq .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yyhdjzdouq .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#yyhdjzdouq .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yyhdjzdouq .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#yyhdjzdouq .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yyhdjzdouq .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#yyhdjzdouq .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yyhdjzdouq .gt_left {
+  text-align: left;
+}
+
+#yyhdjzdouq .gt_center {
+  text-align: center;
+}
+
+#yyhdjzdouq .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#yyhdjzdouq .gt_font_normal {
+  font-weight: normal;
+}
+
+#yyhdjzdouq .gt_font_bold {
+  font-weight: bold;
+}
+
+#yyhdjzdouq .gt_font_italic {
+  font-style: italic;
+}
+
+#yyhdjzdouq .gt_super {
+  font-size: 65%;
+}
+
+#yyhdjzdouq .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#yyhdjzdouq .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#yyhdjzdouq .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#yyhdjzdouq .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#yyhdjzdouq .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#yyhdjzdouq .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#yyhdjzdouq .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#yyhdjzdouq .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#yyhdjzdouq div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_heading header">
+<td colspan="12" class="gt_heading gt_title gt_font_normal">Facility-level summary: energy systems &amp; medical devices</td>
+</tr>
+<tr class="gt_heading even">
+<td colspan="12" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">Combined from energy-systems-database and med-dev-database</td>
+</tr>
+<tr class="gt_col_headings header">
+<th id="facility_id" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">ID</th>
+<th id="facility_name" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">Facility</th>
+<th id="district" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">District</th>
+<th id="n_systems" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Energy systems</th>
+<th id="pct_functional" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">% functional (energy)</th>
+<th id="n_devices_total" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Devices</th>
+<th id="pct_dev_functional" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">% functional (devices)</th>
+<th id="pct_dysfunctional" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">% dysfunctional</th>
+<th id="n_energy_sources" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Energy sources</th>
+<th id="n_funders_energy" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Energy funders</th>
+<th id="n_funders_devices" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Device funders</th>
+<th id="avg_nights_no_light" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Dark nights/mo</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="facility_id">1</td>
+<td class="gt_row gt_left" headers="facility_name">Manyamula</td>
+<td class="gt_row gt_left" headers="district">Mzimba</td>
+<td class="gt_row gt_right" headers="n_systems">6</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #9AC99F; color: #000000">83%</td>
+<td class="gt_row gt_right" headers="n_devices_total">37</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #FDDDB0; color: #000000">49%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">30%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">5</td>
+<td class="gt_row gt_right" headers="n_funders_devices">4</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">0.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="facility_id">2</td>
+<td class="gt_row gt_left" headers="facility_name">Chikangawa</td>
+<td class="gt_row gt_left" headers="district">Mzimba</td>
+<td class="gt_row gt_right" headers="n_systems">3</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #009E73; color: #FFFFFF">100%</td>
+<td class="gt_row gt_right" headers="n_devices_total">41</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #FFEBC3; color: #000000">51%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">37%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">3</td>
+<td class="gt_row gt_right" headers="n_funders_devices">11</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">2.0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="facility_id">3</td>
+<td class="gt_row gt_left" headers="facility_name">Msese</td>
+<td class="gt_row gt_left" headers="district">Mzimba</td>
+<td class="gt_row gt_right" headers="n_systems">9</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #EA904E; color: #000000">44%</td>
+<td class="gt_row gt_right" headers="n_devices_total">41</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #FBD0A0; color: #000000">46%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">44%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">1</td>
+<td class="gt_row gt_right" headers="n_funders_energy">8</td>
+<td class="gt_row gt_right" headers="n_funders_devices">5</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">0.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="facility_id">4</td>
+<td class="gt_row gt_left" headers="facility_name">Hoho</td>
+<td class="gt_row gt_left" headers="district">Mzimba</td>
+<td class="gt_row gt_right" headers="n_systems">4</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #F2A96D; color: #000000">50%</td>
+<td class="gt_row gt_right" headers="n_devices_total">38</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #FFF3CD; color: #000000">53%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">39%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">4</td>
+<td class="gt_row gt_right" headers="n_funders_devices">7</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">1.0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="facility_id">5</td>
+<td class="gt_row gt_left" headers="facility_name">Endindeni</td>
+<td class="gt_row gt_left" headers="district">Mzimba</td>
+<td class="gt_row gt_right" headers="n_systems">9</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #FFF3CD; color: #000000">67%</td>
+<td class="gt_row gt_right" headers="n_devices_total">80</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #F2A76A; color: #000000">39%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">56%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">7</td>
+<td class="gt_row gt_right" headers="n_funders_devices">7</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">0.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="facility_id">6</td>
+<td class="gt_row gt_left" headers="facility_name">Mtende</td>
+<td class="gt_row gt_left" headers="district">Mzimba</td>
+<td class="gt_row gt_right" headers="n_systems">6</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #D55E00; color: #FFFFFF">33%</td>
+<td class="gt_row gt_right" headers="n_devices_total">39</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #D55E00; color: #FFFFFF">26%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">64%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">1</td>
+<td class="gt_row gt_right" headers="n_funders_energy">6</td>
+<td class="gt_row gt_right" headers="n_funders_devices">4</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">0.0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="facility_id">7</td>
+<td class="gt_row gt_left" headers="facility_name">Kachere</td>
+<td class="gt_row gt_left" headers="district">Nkhata Bay</td>
+<td class="gt_row gt_right" headers="n_systems">5</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #009E73; color: #FFFFFF">100%</td>
+<td class="gt_row gt_right" headers="n_devices_total">75</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #E6E8C1; color: #000000">56%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">37%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">4</td>
+<td class="gt_row gt_right" headers="n_funders_devices">9</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">0.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="facility_id">8</td>
+<td class="gt_row gt_left" headers="facility_name">Liuzi</td>
+<td class="gt_row gt_left" headers="district">Nkhata Bay</td>
+<td class="gt_row gt_right" headers="n_systems">5</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #AFD2A8; color: #000000">80%</td>
+<td class="gt_row gt_right" headers="n_devices_total">60</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #D4E1B9; color: #000000">58%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">32%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">5</td>
+<td class="gt_row gt_right" headers="n_funders_devices">8</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">0.0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="facility_id">9</td>
+<td class="gt_row gt_left" headers="facility_name">Tchesamu</td>
+<td class="gt_row gt_left" headers="district">Nkhata Bay</td>
+<td class="gt_row gt_right" headers="n_systems">6</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #FFF3CD; color: #000000">67%</td>
+<td class="gt_row gt_right" headers="n_devices_total">29</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #FDDBAE; color: #000000">48%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">45%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">1</td>
+<td class="gt_row gt_right" headers="n_funders_energy">5</td>
+<td class="gt_row gt_right" headers="n_funders_devices">4</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">0.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="facility_id">10</td>
+<td class="gt_row gt_left" headers="facility_name">Bula</td>
+<td class="gt_row gt_left" headers="district">Nkhata Bay</td>
+<td class="gt_row gt_right" headers="n_systems">10</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #009E73; color: #FFFFFF">100%</td>
+<td class="gt_row gt_right" headers="n_devices_total">76</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #FEE5BA; color: #000000">50%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">43%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">4</td>
+<td class="gt_row gt_right" headers="n_funders_devices">5</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">0.0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="facility_id">11</td>
+<td class="gt_row gt_left" headers="facility_name">Nthungwa</td>
+<td class="gt_row gt_left" headers="district">Nkhata Bay</td>
+<td class="gt_row gt_right" headers="n_systems">7</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #E2E7C0; color: #000000">71%</td>
+<td class="gt_row gt_right" headers="n_devices_total">70</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #E8E9C2; color: #000000">56%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">41%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">1</td>
+<td class="gt_row gt_right" headers="n_funders_energy">7</td>
+<td class="gt_row gt_right" headers="n_funders_devices">8</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">4.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="facility_id">12</td>
+<td class="gt_row gt_left" headers="facility_name">Mangunda</td>
+<td class="gt_row gt_left" headers="district">Thyolo</td>
+<td class="gt_row gt_right" headers="n_systems">5</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #AFD2A8; color: #000000">80%</td>
+<td class="gt_row gt_right" headers="n_devices_total">116</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #FFF3CD; color: #000000">53%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">41%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">5</td>
+<td class="gt_row gt_right" headers="n_funders_devices">6</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">4.0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="facility_id">14</td>
+<td class="gt_row gt_left" headers="facility_name">Thowela</td>
+<td class="gt_row gt_left" headers="district">Thyolo</td>
+<td class="gt_row gt_right" headers="n_systems">1</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #009E73; color: #FFFFFF">100%</td>
+<td class="gt_row gt_right" headers="n_devices_total">24</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #0F9F74; color: #FFFFFF">79%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">21%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">1</td>
+<td class="gt_row gt_right" headers="n_funders_energy">1</td>
+<td class="gt_row gt_right" headers="n_funders_devices">2</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">0.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="facility_id">15</td>
+<td class="gt_row gt_left" headers="facility_name">Khonjeni</td>
+<td class="gt_row gt_left" headers="district">Thyolo</td>
+<td class="gt_row gt_right" headers="n_systems">13</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #F7BA83; color: #000000">54%</td>
+<td class="gt_row gt_right" headers="n_devices_total">83</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #009E73; color: #FFFFFF">80%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">16%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">3</td>
+<td class="gt_row gt_right" headers="n_funders_energy">7</td>
+<td class="gt_row gt_right" headers="n_funders_devices">3</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">10.0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="facility_id">16</td>
+<td class="gt_row gt_left" headers="facility_name">Mapanga</td>
+<td class="gt_row gt_left" headers="district">Thyolo</td>
+<td class="gt_row gt_right" headers="n_systems">7</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #E2E7C0; color: #000000">71%</td>
+<td class="gt_row gt_right" headers="n_devices_total">29</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #66B58A; color: #000000">72%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">17%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">1</td>
+<td class="gt_row gt_right" headers="n_funders_energy">7</td>
+<td class="gt_row gt_right" headers="n_funders_devices">3</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">30.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="facility_id">17</td>
+<td class="gt_row gt_left" headers="facility_name">Changata</td>
+<td class="gt_row gt_left" headers="district">Thyolo</td>
+<td class="gt_row gt_right" headers="n_systems">7</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #8BC398; color: #000000">86%</td>
+<td class="gt_row gt_right" headers="n_devices_total">54</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #EB9352; color: #000000">35%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">57%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">6</td>
+<td class="gt_row gt_right" headers="n_funders_devices">5</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">10.0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="facility_id">18</td>
+<td class="gt_row gt_left" headers="facility_name">Bvumbwe</td>
+<td class="gt_row gt_left" headers="district">Thyolo</td>
+<td class="gt_row gt_right" headers="n_systems">3</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #009E73; color: #FFFFFF">100%</td>
+<td class="gt_row gt_right" headers="n_devices_total">139</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #22A276; color: #FFFFFF">78%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">15%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">3</td>
+<td class="gt_row gt_right" headers="n_funders_devices">11</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">2.0</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="facility_id">19</td>
+<td class="gt_row gt_left" headers="facility_name">Mtimabi</td>
+<td class="gt_row gt_left" headers="district">Mangochi</td>
+<td class="gt_row gt_right" headers="n_systems">12</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #CDDEB6; color: #000000">75%</td>
+<td class="gt_row gt_right" headers="n_devices_total">116</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #FFEEC7; color: #000000">52%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">47%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">1</td>
+<td class="gt_row gt_right" headers="n_funders_energy">5</td>
+<td class="gt_row gt_right" headers="n_funders_devices">7</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">15.0</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="facility_id">20</td>
+<td class="gt_row gt_left" headers="facility_name">Malukula</td>
+<td class="gt_row gt_left" headers="district">Mangochi</td>
+<td class="gt_row gt_right" headers="n_systems">5</td>
+<td class="gt_row gt_right" headers="pct_functional" style="background-color: #FCD5A6; color: #000000">60%</td>
+<td class="gt_row gt_right" headers="n_devices_total">89</td>
+<td class="gt_row gt_right" headers="pct_dev_functional" style="background-color: #F6B67E; color: #000000">42%</td>
+<td class="gt_row gt_right" headers="pct_dysfunctional">49%</td>
+<td class="gt_row gt_right" headers="n_energy_sources">2</td>
+<td class="gt_row gt_right" headers="n_funders_energy">3</td>
+<td class="gt_row gt_right" headers="n_funders_devices">7</td>
+<td class="gt_row gt_right" headers="avg_nights_no_light">8.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div><div id="3ade8a4a-fb1d-4a6c-8409-ac45482d5fc9" class="hidden html-fill-item html-fill-container">
+
+</div>
+</div>
+</div></div></div><bslib-tooltip placement="auto" bsoptions="[]" data-require-bs-version="5" data-require-bs-caller="tooltip()">
+    <template>Expand</template>
+    <span class="bslib-full-screen-enter badge rounded-pill">
+        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" style="height:1em;width:1em;" aria-hidden="true" role="img"><path d="M20 5C20 4.4 19.6 4 19 4H13C12.4 4 12 3.6 12 3C12 2.4 12.4 2 13 2H21C21.6 2 22 2.4 22 3V11C22 11.6 21.6 12 21 12C20.4 12 20 11.6 20 11V5ZM4 19C4 19.6 4.4 20 5 20H11C11.6 20 12 20.4 12 21C12 21.6 11.6 22 11 22H3C2.4 22 2 21.6 2 21V13C2 12.4 2.4 12 3 12C3.6 12 4 12.4 4 13V19Z"></path></svg>
+    </span>
+</bslib-tooltip><script data-bslib-card-init="">bslib.Card.initializeAllCards();</script></div>
+</div>
+</div>
+</div>
+
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /container fluid -->
+
+<script type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (_event) {
+  if (window.bslib.Card) {
+    window.bslib.Card.initializeAllCards();
+  }
+}); 
+</script>
+  
+
+
+
+</body></html>
