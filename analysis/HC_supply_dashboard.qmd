@@ -43,11 +43,18 @@ library(ggrepel)
 
 
 
-df <- read_rds("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/HC_EnergySystems.rds")
+# Auto-detect base data path
+if (dir.exists("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data")) {
+  base_path <- "G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data"
+} else {
+  base_path <- "data"
+}
 
-kobo_questionnaire <- read_rds("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Kobo_Questionnaire.rds")
+df <- read_rds(file.path(base_path, "derived_data/HC_EnergySystems.rds"))
 
-combined <- read_rds("G:/.shortcut-targets-by-id/1R_jaR_bY959F-kVkmoRlCS4npFhRrr4k/2025-msc-thesis-teufeng/data/derived_data/Combined_Questionnaire_Systems.rds")
+kobo_questionnaire <- read_rds(file.path(base_path, "derived_data/Kobo_Questionnaire.rds"))
+
+combined <- read_rds(file.path(base_path, "derived_data/Combined_Questionnaire_Systems.rds"))
 ```
 
 # Energy Stacking
