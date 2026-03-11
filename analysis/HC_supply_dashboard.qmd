@@ -55,6 +55,9 @@ df <- read_rds(file.path(base_path, "derived_data/HC_EnergySystems.rds"))
 kobo_questionnaire <- read_rds(file.path(base_path, "derived_data/Kobo_Questionnaire.rds"))
 
 combined <- read_rds(file.path(base_path, "derived_data/Combined_Questionnaire_Systems.rds"))
+
+plots_path <- file.path(base_path, "derived_data/plots")
+dir.create(plots_path, showWarnings = FALSE)
 ```
 
 # Energy Stacking
@@ -174,7 +177,7 @@ df_plot <- df_plot |>
 
 
 # 3. Plot--------------------------------
-ggplot(df_plot, aes(x = facility_clean, fill = type)) +
+p_facility_overview_all <- ggplot(df_plot, aes(x = facility_clean, fill = type)) +
   geom_bar() +
   geom_boxplot(
     data = facility_ranked,
@@ -191,13 +194,15 @@ ggplot(df_plot, aes(x = facility_clean, fill = type)) +
        y = "Energy System Count",
        fill = "Energy System Category") +
   theme_minimal() +
-  scale_fill_colorblind() 
+  scale_fill_colorblind()
+p_facility_overview_all
+ggsave(file.path(plots_path, "Facility_Overview_All_Systems.png"), p_facility_overview_all, width = 10, height = 7)
 
 #-----------------------------------------
-df_plot_functional <- df_plot |> 
+df_plot_functional <- df_plot |>
   filter(functional_now == "Yes")
 
-ggplot(df_plot_functional, aes(x = facility_clean, fill = type)) +
+p_facility_overview_functional <- ggplot(df_plot_functional, aes(x = facility_clean, fill = type)) +
   geom_bar() +
   geom_boxplot(
     data = facility_ranked,
@@ -214,7 +219,9 @@ ggplot(df_plot_functional, aes(x = facility_clean, fill = type)) +
        y = "Energy System Count",
        fill = "Energy System Category") +
   theme_minimal() +
-  scale_fill_colorblind() 
+  scale_fill_colorblind()
+p_facility_overview_functional
+ggsave(file.path(plots_path, "Facility_Overview_Functional_Only.png"), p_facility_overview_functional, width = 10, height = 7)
 
 ```
 
@@ -333,7 +340,7 @@ colors <- c(
 )
 
 
-ggplot(suhlrie_hhfa, aes(x = year, y = value, fill = category)) +
+p_literature_comparison <- ggplot(suhlrie_hhfa, aes(x = year, y = value, fill = category)) +
   geom_col(width = 0.65) +
   geom_text(aes(label = round(value, 2)),
             position = position_stack(vjust = 0.5),
@@ -346,6 +353,8 @@ ggplot(suhlrie_hhfa, aes(x = year, y = value, fill = category)) +
     panel.grid.major.x = element_blank(),
     panel.grid.minor = element_blank()
   )
+p_literature_comparison
+ggsave(file.path(plots_path, "Literature_Comparison.png"), p_literature_comparison, width = 10, height = 7)
 
 ```
 
@@ -473,11 +482,13 @@ p_time_pct <-
 # -----------------------------
 # 5) Arrange ALL plots nicely (single output)
 # -----------------------------
-  (p_overall | p_time_pct) /
+p_functionality_overview <- (p_overall | p_time_pct) /
   (p_facility | p_type) +
   plot_layout(heights = c(3, 6), guides = "collect") +
   plot_annotation(title = NULL) &
   theme(legend.position = "bottom")
+p_functionality_overview
+ggsave(file.path(plots_path, "Functionality_Overview.png"), p_functionality_overview, width = 12, height = 10)
 
 
 ```
@@ -531,7 +542,7 @@ grid_reliability_plot <- grid_reliability |>
   )
 
 
-ggplot(grid_reliability_plot,
+p_grid_reliability <- ggplot(grid_reliability_plot,
        aes(x = freq_days,
            y = outage_duration,
            color = region,
@@ -557,6 +568,8 @@ ggplot(grid_reliability_plot,
   theme_minimal() +
   scale_color_colorblind() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8))
+p_grid_reliability
+ggsave(file.path(plots_path, "Grid_Reliability.png"), p_grid_reliability, width = 10, height = 7)
 
 
 ```
@@ -571,9 +584,9 @@ systemcountvsnightsnolight <- combined |>
   filter(night_treatments_monthly != -99) |> 
   mutate(dark_treatment_ratio = night_treatments_in_darkness_monthly / night_treatments_monthly * 100)
 
-ggplot(data = systemcountvsnightsnolight,
-       mapping = aes(x = system_count, 
-                     y = night_treatments_in_darkness_monthly, 
+p_nights_count <- ggplot(data = systemcountvsnightsnolight,
+       mapping = aes(x = system_count,
+                     y = night_treatments_in_darkness_monthly,
                      color = night_treatments_monthly,
                      shape = main_elec)) +
   geom_jitter(width = 0.2, height = 0.3, size = 10, alpha = 0.7) +   # jittered points
@@ -593,15 +606,17 @@ ggplot(data = systemcountvsnightsnolight,
        color = "Monthly night treatments",
        shape = "Primary electricity source") +
   theme_minimal()
+p_nights_count
+ggsave(file.path(plots_path, "Nights_without_Light_Count.png"), p_nights_count, width = 10, height = 7)
 
 #------------------------------
 
-ggplot(data = systemcountvsnightsnolight,
-       mapping = aes(x = system_count, 
-                     y = dark_treatment_ratio, 
+p_nights_ratio <- ggplot(data = systemcountvsnightsnolight,
+       mapping = aes(x = system_count,
+                     y = dark_treatment_ratio,
                      color = night_treatments_monthly
                      )) +
-  geom_jitter(width = 0.3, height = 2, size = 5, alpha = 0.9) + 
+  geom_jitter(width = 0.3, height = 2, size = 5, alpha = 0.9) +
   geom_hline(
   yintercept = 0,
   linetype = "dashed",
@@ -632,6 +647,8 @@ ggplot(data = systemcountvsnightsnolight,
        color = "Monthly Night\nTreatments [count]",
        shape = "Primary Source") +
   theme_minimal()
+p_nights_ratio
+ggsave(file.path(plots_path, "Nights_without_Light_Ratio.png"), p_nights_ratio, width = 10, height = 7)
 
 
 
@@ -669,6 +686,7 @@ installers_plot <- ggplot(installers, aes(x = fct_rev(fct_infreq(type)), fill = 
   scale_fill_viridis_d(option = "D")
 
 installers_plot
+ggsave(file.path(plots_path, "Installers_Funders.png"), installers_plot, width = 10, height = 7)
 ```
 
 ```{r}
@@ -685,8 +703,7 @@ repair_primary_plot <- ggplot(df, aes(x = fct_rev(fct_infreq(type)), fill = repa
   scale_fill_viridis_d(option = "D")
 
 repair_primary_plot
-
-
+ggsave(file.path(plots_path, "Repair_Primary.png"), repair_primary_plot, width = 10, height = 7)
 ```
 
 ```{r}
@@ -709,10 +726,12 @@ repair_primary_plot <- repair_primary_plot +
     axis.title.x = element_blank()
   )
 
-(installers_plot | repair_primary_plot) +
+p_funder_vs_maintainers <- (installers_plot | repair_primary_plot) +
   plot_layout(heights = c(3, 6), guides = "collect") +
   plot_annotation(title = NULL) &
   theme(legend.position = "bottom")
+p_funder_vs_maintainers
+ggsave(file.path(plots_path, "Funder_vs_Maintainers.png"), p_funder_vs_maintainers, width = 12, height = 7)
 
 
 ```
@@ -756,7 +775,7 @@ combined_counts <- bind_rows(
 
 
 
-combined_counts |>
+tbl_maintenance <- combined_counts |>
   gt(groupname_col = "Question") |>
   tab_header(
     title = "Maintenance & Repair",
@@ -767,6 +786,8 @@ combined_counts |>
     n = ""
   ) |>
   opt_stylize(style = 1)
+tbl_maintenance
+gtsave(tbl_maintenance, file.path(plots_path, "Repair_and_Maintenance.html"))
 
 ```
 
@@ -776,15 +797,16 @@ combined_counts |>
 repair_success_rate <- combined |> 
   filter(!is.na(repair_success))
 
-ggplot(repair_success_rate, aes(x = fct_rev(fct_infreq(type)), fill = repair_success)) +
+p_repair_success <- ggplot(repair_success_rate, aes(x = fct_rev(fct_infreq(type)), fill = repair_success)) +
   geom_bar() +
   coord_flip() +
-  # scale_y_continuous(breaks = seq(0, 10, 2)) +
   labs(x = NULL,
        y = "Reported System Failures",
        fill = "Repaired") +
   theme_minimal() +
   scale_fill_manual(values = c("Yes" = "lightblue", "No" = "black"))
+p_repair_success
+ggsave(file.path(plots_path, "Repair_Success_Rate.png"), p_repair_success, width = 10, height = 7)
 ```
 
 # Donor Alignment
@@ -840,7 +862,7 @@ df_plot2 <- df_clean |>
   )
 
 # 6) Plot
-ggplot(df_plot2,
+p_donor_variation <- ggplot(df_plot2,
        aes(x = fct_rev(fct_infreq(facility_clean)),
            fill = fct_infreq(funding_recode))) +
   geom_bar(position = position_stack(reverse = TRUE)) +
@@ -853,6 +875,8 @@ ggplot(df_plot2,
   ) +
   theme_minimal() +
   scale_fill_viridis_d(option = "H")
+p_donor_variation
+ggsave(file.path(plots_path, "Donor_Variation_Overview.png"), p_donor_variation, width = 10, height = 7)
 
 
 ```
@@ -871,7 +895,7 @@ ggplot(df_plot2,
 #   scale_fill_viridis_d(option = "H")
 #   # scale_fill_colorblind()
 
-ggplot(df_plot2,
+p_supply_category_donors <- ggplot(df_plot2,
        aes(x = fct_rev(fct_infreq(type)),
            fill = fct_infreq(funding_recode))) +
   geom_bar(position = position_stack(reverse = TRUE)) +
@@ -881,6 +905,8 @@ ggplot(df_plot2,
        fill = "Funder") +
   theme_minimal() +
   scale_fill_viridis_d(option = "H")
+p_supply_category_donors
+ggsave(file.path(plots_path, "Supply_Category_Donors.png"), p_supply_category_donors, width = 10, height = 7)
 
 ```
 
@@ -889,15 +915,15 @@ ggplot(df_plot2,
 ```{r}
 #| title: "Supply Categories Manufacturers"
 
-ggplot(combined, aes(x = fct_rev(fct_infreq(type)), fill = brand)) +
+p_supply_manufacturers <- ggplot(combined, aes(x = fct_rev(fct_infreq(type)), fill = brand)) +
   geom_bar() +
   coord_flip() +
-  # scale_y_continuous(breaks = seq(0, 10, 2)) +
   labs(x = "Category",
        y = "Count",
        fill = "Manufacturer") +
-  theme_minimal() 
-  # scale_fill_colorblind()
+  theme_minimal()
+p_supply_manufacturers
+ggsave(file.path(plots_path, "Supply_Categories_Manufacturers.png"), p_supply_manufacturers, width = 10, height = 7)
 
 
 ```
@@ -912,7 +938,7 @@ district_manufacturers <- combined |>
          ) |> 
   mutate(brand = replace_na(brand, "Unknown"))
 
-ggplot(district_manufacturers, aes(x = fct_rev(fct_infreq(type)), fill = brand)) +
+p_district_manufacturers <- ggplot(district_manufacturers, aes(x = fct_rev(fct_infreq(type)), fill = brand)) +
   geom_bar() +
   coord_flip() +
   labs(x = NULL,
@@ -920,6 +946,8 @@ ggplot(district_manufacturers, aes(x = fct_rev(fct_infreq(type)), fill = brand))
        fill = "Manufacturer") +
   theme_minimal() +
   facet_wrap(~ district_label)
+p_district_manufacturers
+ggsave(file.path(plots_path, "District_Supply_Categories_Manufacturers.png"), p_district_manufacturers, width = 12, height = 7)
 
 
 ```
@@ -927,7 +955,7 @@ ggplot(district_manufacturers, aes(x = fct_rev(fct_infreq(type)), fill = brand))
 ```{r}
 #| title: "Manufacturers in each Facility"
 
-ggplot(df, aes(x = fct_rev(fct_infreq(facility_name)), fill = brand)) +
+p_manufacturers_per_facility <- ggplot(df, aes(x = fct_rev(fct_infreq(facility_name)), fill = brand)) +
   geom_bar() +
   coord_flip() +
   scale_y_continuous(breaks = seq(0, 10, 2)) +
@@ -935,12 +963,14 @@ ggplot(df, aes(x = fct_rev(fct_infreq(facility_name)), fill = brand)) +
        y = "Count",
        fill = "Manufacturer") +
   theme_minimal()
+p_manufacturers_per_facility
+ggsave(file.path(plots_path, "Manufacturers_in_each_Facility.png"), p_manufacturers_per_facility, width = 10, height = 7)
 ```
 
 ### Variation Index {.tabset}
 
 ```{r}
-#| title: "Variation "
+#| title: "Fragmentation"
 
 facility_ranked <- df |>
   count(facility_name, name = "system_count") |>
@@ -1040,101 +1070,47 @@ facility_meta <- df |>
 df_analysis <- funder_diversity |>
   left_join(mfr_diversity,  by = "facility_id") |>
   left_join(func_ratio,     by = "facility_id") |>
-  left_join(facility_meta,  by = "facility_id")
-
-# Funder diversity (Simpson) vs. non-functionality
-  # Funder diversity (Simpson) vs. non-functionality
-cor.test(df_analysis$simpson_diversity, df_analysis$prop_nonfunc,
-         method = "spearman")
-
-# Raw funder count vs. non-functionality (simpler, more interpretable)
-cor.test(df_analysis$n_funders, df_analysis$prop_nonfunc,
-         method = "spearman")
-
-# Manufacturer brand diversity vs. non-functionality
-cor.test(df_analysis$simpson_mfr, df_analysis$prop_nonfunc,
-         method = "spearman")
-```
-
-```{r}
-plot_scatter <- function(data, x_var, x_lab) {
-  ggplot(data, aes(x = .data[[x_var]], y = prop_nonfunc,
-                   colour = region, label = facility_clean)) +
-    geom_point(size = 4, alpha = 0.8) +
-    geom_smooth(method = "lm", se = TRUE,
-                colour = "grey40", linetype = "dashed", linewidth = 0.7) +
-    geom_text_repel(size = 2.8, max.overlaps = 15) +
-    scale_y_continuous(labels = percent_format(accuracy = 1),
-                       limits = c(0, 1)) +
-    scale_color_colorblind() +
-    labs(x = x_lab,
-         y = "Proportion of non-functional systems",
-         colour = "Region") +
-    theme_minimal(base_size = 11)
-}
-
-p1 <- plot_scatter(df_analysis, "simpson_diversity",
-                   "Funder diversity (Simpson index)")
-p2 <- plot_scatter(df_analysis, "n_funders",
-                   "Number of distinct funders")
-p3 <- plot_scatter(df_analysis, "simpson_mfr",
-                   "Manufacturer diversity (Simpson index)")
-
-p1 / p2 / p3 +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom")
-```
-
-```{r}
-donor_map <- df |>
-  mutate(
-    funding_chr = as.character(funding),
-    funding_chr = na_if(funding_chr, "NA"),
-    funding_chr = na_if(funding_chr, ""),
-    funding_chr = if_else(is.na(funding_chr), "__missing__", funding_chr)
-  ) |>
-  filter(funding_chr != "MoH", funding_chr != "__missing__") |>
-  count(funding_chr, sort = TRUE) |>
-  mutate(funding_label = paste0("Donor ", LETTERS[row_number()])) |>
-  select(funding_chr, funding_label)
-
-df_bar <- df |>
-  mutate(
-    funding_chr = as.character(funding),
-    funding_chr = na_if(funding_chr, "NA"),
-    funding_chr = na_if(funding_chr, ""),
-    funding_chr = if_else(is.na(funding_chr), "__missing__", funding_chr)
-  ) |>
-  left_join(donor_map, by = "funding_chr") |>
-  mutate(
-    funding_recode = case_when(
-      funding_chr == "MoH"         ~ "DHO/MoH/Gov",
-      funding_chr == "__missing__" ~ "Unknown",
-      TRUE                         ~ funding_label
-    )
-  ) |>
+  left_join(facility_meta,  by = "facility_id") |>
   left_join(
-    df_analysis |> select(facility_id, facility_clean, simpson_diversity),
+    df |>
+      filter(installation_year != -99) |>
+      mutate(installation_year = as.numeric(installation_year)) |>
+      group_by(facility_id) |>
+      summarise(mean_install_year = mean(installation_year, na.rm = TRUE), .groups = "drop"),
     by = "facility_id"
-  ) |>
-  mutate(
-    facility_clean = fct_reorder(facility_clean, simpson_diversity)
   )
 
-ggplot(df_bar,
-       aes(x = facility_clean, fill = fct_infreq(funding_recode))) +
-  geom_bar(position = position_stack(reverse = TRUE)) +
-  coord_flip() +
-  labs(x = NULL,
-       y = "Energy System Count",
-       fill = "Initial Funder",
-       subtitle = "Ordered by funder diversity (most fragmented at top)") +
-  theme_minimal() +
-  scale_fill_viridis_d(option = "H")
+# Spearman correlations — displayed as gt table
+library(broom)
+cor_results <- bind_rows(
+  tidy(cor.test(df_analysis$simpson_diversity, df_analysis$prop_nonfunc, method = "spearman")) |>
+    mutate(measure = "Simpson funder diversity"),
+  tidy(cor.test(df_analysis$n_funders,         df_analysis$prop_nonfunc, method = "spearman")) |>
+    mutate(measure = "Number of distinct funders"),
+  tidy(cor.test(df_analysis$simpson_mfr,       df_analysis$prop_nonfunc, method = "spearman")) |>
+    mutate(measure = "Simpson manufacturer diversity")
+) |>
+  select(measure, estimate, p.value) |>
+  rename(rho = estimate)
+
+tbl_fragmentation <- cor_results |>
+  gt() |>
+  fmt_number(columns = c(rho, p.value), decimals = 3) |>
+  cols_label(measure = "Measure", rho = "ρ (Spearman)", p.value = "p-value") |>
+  tab_header(title = "Spearman Correlation: Fragmentation vs. Non-functionality") |>
+  tab_style(
+    style = cell_fill(color = "#fff3cd"),
+    locations = cells_body(rows = p.value < 0.05)
+  ) |>
+  opt_stylize(style = 1)
+tbl_fragmentation
+gtsave(tbl_fragmentation, file.path(plots_path, "Fragmentation.html"))
 ```
 
 ```{r}
-#| title: "Variation Scatter"
+#| title: "Fragmentation Scatter"
+
+highlight_facilities <- c("Facility J", "Facility S")
 
 plot_scatter <- function(data, x_var, x_lab) {
   ggplot(data, aes(x = .data[[x_var]], y = prop_nonfunc,
@@ -1143,6 +1119,12 @@ plot_scatter <- function(data, x_var, x_lab) {
     geom_smooth(method = "lm", se = TRUE,
                 colour = "grey40", linetype = "dashed", linewidth = 0.7) +
     geom_text_repel(size = 2.8, max.overlaps = 15) +
+    geom_label_repel(
+      data = \(d) filter(d, facility_clean %in% highlight_facilities),
+      aes(label = facility_clean),
+      size = 3, fontface = "bold", fill = "white",
+      box.padding = 0.5, show.legend = FALSE
+    ) +
     scale_y_continuous(labels = percent_format(accuracy = 1),
                        limits = c(0, 1)) +
     scale_color_colorblind() +
@@ -1156,16 +1138,85 @@ p1 <- plot_scatter(df_analysis, "simpson_diversity",
                    "Funder diversity (Simpson index)")
 p2 <- plot_scatter(df_analysis, "n_funders",
                    "Number of distinct funders")
-p3 <- plot_scatter(df_analysis, "simpson_mfr",
-                   "Manufacturer diversity (Simpson index)")
 
-(p1 / p2 / p3) +
+p_fragmentation_scatter <- (p1 / p2) +
 plot_layout(guides = "collect") &
 theme(legend.position = "bottom")
+p_fragmentation_scatter
+ggsave(file.path(plots_path, "Fragmentation_Scatter.png"), p_fragmentation_scatter, width = 10, height = 12)
 ```
 
 ```{r}
-#| title: "Funder Composition Bar Chart"
+#| title: "Sensitivity: Excl. Facility J"
+
+df_no_j <- df_analysis |> filter(facility_clean != "Facility J")
+
+cor_sensitivity <- bind_rows(
+  tidy(cor.test(df_no_j$simpson_diversity, df_no_j$prop_nonfunc, method = "spearman")) |>
+    mutate(measure = "Simpson funder diversity"),
+  tidy(cor.test(df_no_j$n_funders,         df_no_j$prop_nonfunc, method = "spearman")) |>
+    mutate(measure = "Number of distinct funders")
+) |>
+  select(measure, estimate, p.value) |>
+  rename(rho = estimate)
+
+tbl_sensitivity <- cor_sensitivity |>
+  gt() |>
+  fmt_number(columns = c(rho, p.value), decimals = 3) |>
+  cols_label(measure = "Measure", rho = "ρ (Spearman)", p.value = "p-value") |>
+  tab_header(
+    title = "Sensitivity Analysis: Excluding Facility J",
+    subtitle = "Checks whether Facility J drives the overall correlation"
+  ) |>
+  tab_style(
+    style = cell_fill(color = "#fff3cd"),
+    locations = cells_body(rows = p.value < 0.05)
+  ) |>
+  opt_stylize(style = 1)
+tbl_sensitivity
+gtsave(tbl_sensitivity, file.path(plots_path, "Sensitivity_Excl_Facility_J.html"))
+```
+
+```{r}
+#| title: "Age-Adjusted Correlation"
+
+# Partial Spearman: residualise both x and prop_nonfunc on mean_install_year
+df_age <- df_analysis |> filter(!is.na(mean_install_year))
+
+partial_spearman <- function(x, y, z) {
+  rx <- residuals(lm(rank(x) ~ rank(z)))
+  ry <- residuals(lm(rank(y) ~ rank(z)))
+  cor.test(rx, ry, method = "pearson")
+}
+
+age_results <- bind_rows(
+  tidy(partial_spearman(df_age$simpson_diversity, df_age$prop_nonfunc, df_age$mean_install_year)) |>
+    mutate(measure = "Simpson funder diversity"),
+  tidy(partial_spearman(df_age$n_funders, df_age$prop_nonfunc, df_age$mean_install_year)) |>
+    mutate(measure = "Number of distinct funders")
+) |>
+  select(measure, estimate, p.value) |>
+  rename(r_partial = estimate)
+
+tbl_age_adjusted <- age_results |>
+  gt() |>
+  fmt_number(columns = c(r_partial, p.value), decimals = 3) |>
+  cols_label(measure = "Measure", r_partial = "Partial r", p.value = "p-value") |>
+  tab_header(
+    title = "Partial Correlation: Controlling for Mean Installation Year",
+    subtitle = "Tests whether fragmentation predicts non-functionality beyond system age"
+  ) |>
+  tab_style(
+    style = cell_fill(color = "#fff3cd"),
+    locations = cells_body(rows = p.value < 0.05)
+  ) |>
+  opt_stylize(style = 1)
+tbl_age_adjusted
+gtsave(tbl_age_adjusted, file.path(plots_path, "Age_Adjusted_Correlation.html"))
+```
+
+```{r}
+#| title: "Funder Fragmentation Bar Chart"
 
 donor_map <- df |>
   mutate(
@@ -1202,7 +1253,7 @@ df_bar <- df |>
     facility_clean = fct_reorder(facility_clean, simpson_diversity)
   )
 
-ggplot(df_bar,
+p_funder_fragmentation_bar <- ggplot(df_bar,
        aes(x = facility_clean, fill = fct_infreq(funding_recode))) +
   geom_bar(position = position_stack(reverse = TRUE)) +
   coord_flip() +
@@ -1212,6 +1263,8 @@ ggplot(df_bar,
        subtitle = "Ordered by funder diversity (most fragmented at top)") +
   theme_minimal() +
   scale_fill_viridis_d(option = "H")
+p_funder_fragmentation_bar
+ggsave(file.path(plots_path, "Funder_Fragmentation_Bar_Chart.png"), p_funder_fragmentation_bar, width = 10, height = 7)
 ```
 
 
@@ -1264,7 +1317,7 @@ tm_shape(malawi) +
 
 bbox <- st_bbox(malawi)
 
-ggplot() +
+p_malawi_map <- ggplot() +
   geom_sf(data = malawi, fill = "grey95", color = "grey70") +
   geom_sf(
     data = fac_sf,
@@ -1285,6 +1338,8 @@ ggplot() +
   ) +
   labs(title = "Health facilities in Malawi") +
   theme_minimal()
+p_malawi_map
+ggsave(file.path(plots_path, "Malawian_Health_Centers.png"), p_malawi_map, width = 8, height = 10)
 ```
 
 
@@ -1383,7 +1438,7 @@ climate_impacts <- kobo_questionnaire |>
   )
 
 
-climate_impacts |>
+tbl_climate_impacts <- climate_impacts |>
   arrange(desc(Count)) |>
   gt() |>
   tab_header(
@@ -1394,6 +1449,8 @@ climate_impacts |>
     Count = "Number of facilities"
   ) |>
   opt_stylize(style = 1)
+tbl_climate_impacts
+gtsave(tbl_climate_impacts, file.path(plots_path, "Climate_Impacts.html"))
 
 
 ```
