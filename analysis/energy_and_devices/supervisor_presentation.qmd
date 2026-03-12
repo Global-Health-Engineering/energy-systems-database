@@ -1,0 +1,415 @@
+---
+title: "Energy Systems & Medical Devices"
+subtitle: "Cross-Dataset Analysis — Malawi Health Facilities"
+author: "Gian Teufen"
+date: "March 2026"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    progress: true
+    history: false
+    controls: true
+    transition: fade
+    background-transition: fade
+    highlight-style: github
+    code-fold: true
+    fig-align: center
+    css: supervisor_presentation.css
+    width: 1280
+    height: 720
+---
+
+```{r setup}
+#| echo: false
+#| message: false
+#| warning: false
+library(knitr)
+```
+
+---
+
+## Study scope {.center}
+
+:::: {.columns}
+::: {.column width="50%"}
+**Two linked datasets, same 20 facilities**
+
+- **Energy systems database** (Teufen thesis)
+  Solar, grid, hybrid systems at Malawian health facilities
+
+- **Medical devices database** (Häussner thesis)
+  Device inventory, functionality, funding & maintenance
+
+Both datasets are linkable via `facility_id`, enabling the first cross-validated empirical analysis of the energy–healthcare quality link in this sample.
+:::
+::: {.column width="50%"}
+**Key variables**
+
+| Domain | Variables |
+|--------|-----------|
+| Energy | Functionality, funder count, install year, nights without light |
+| Devices | Functionality, funder count, delivery year, maintenance |
+| Shared | Facility ID, district, region |
+
+**n = 20** facilities across Northern and Southern Malawi
+:::
+::::
+
+---
+
+# Cross-Dataset Overview {background-color="#1a3a5c" style="color: white; text-align: center;"}
+
+*Do energy system outcomes and device outcomes move together?*
+
+---
+
+## Energy vs. device functionality
+
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Overview_Energy_vs_Device_Functionality.png){width="72%" fig-align="center"}
+
+::: {.callout-note appearance="minimal"}
+**Interpretation** — Facilities with a higher share of functional energy systems also tend to have more functional medical devices. Each point is one facility; size encodes the total number of devices surveyed. The positive slope supports the hypothesis that energy quality is a structural precondition for device functionality.
+:::
+
+---
+
+## Funder fragmentation: energy vs. devices
+
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Cross_Funder_Fragmentation_Energy_vs_Devices.png){width="72%" fig-align="center"}
+
+::: {.callout-note appearance="minimal"}
+**Interpretation** — Facilities fragmented in energy funding tend also to be fragmented in device funding. This suggests that funding fragmentation is a **facility-level structural trait**, not specific to one asset type. Colour encodes device functionality: more fragmented facilities tend to show lower device functionality.
+:::
+
+---
+
+## Investment timing: energy age vs. device delivery
+
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Cross_Energy_Age_vs_Device_Delivery_Year.png){width="72%" fig-align="center"}
+
+::: {.callout-note appearance="minimal"}
+**Interpretation** — Points above the diagonal received medical devices *after* their energy infrastructure was installed; points below the line received devices first. The majority of facilities fall above the diagonal, consistent with a pattern where energy investment precedes device delivery — yet device functionality still varies considerably, suggesting that energy investment alone does not guarantee sustained device operability.
+:::
+
+---
+
+## Cross-dataset correlations (summary)
+
+:::: {.columns}
+::: {.column width="50%"}
+**Three Spearman tests across the two datasets:**
+
+| Variable pair | ρ | p |
+|---|---|---|
+| Energy functionality ~ Device functionality | *positive* | *< 0.05* |
+| N energy funders ~ N device funders | *positive* | *< 0.05* |
+| Mean energy install year ~ Device delivery year | *positive* | *< 0.05* |
+
+All three cross-dataset associations are statistically significant and directionally consistent.
+:::
+::: {.column width="50%"}
+**What this means**
+
+- Energy and device outcomes are **not independent** — they co-vary at facility level
+- Funder fragmentation is a **systemic, cross-sectoral** governance problem
+- Investment timelines are **loosely coordinated** but energy infrastructure tends to arrive first
+
+These correlations motivate a joint analysis of energy quality and healthcare service readiness.
+:::
+::::
+
+---
+
+# Donor Governance {background-color="#1a3a5c" style="color: white; text-align: center;"}
+
+*Does having shared funders across energy and devices improve outcomes?*
+
+---
+
+## Per-facility funder profile
+
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Donor_Governance_Funder_Profile.png){width="65%" fig-align="center"}
+
+::: {.callout-note appearance="minimal"}
+**Interpretation** — Each bar shows how many funders are active only in energy (blue), only in devices (orange), or in both (green). Facilities at the bottom of the chart have the most integrated donor engagement. Most facilities show little funder overlap — donors tend to fund either energy *or* devices, rarely both — suggesting **siloed project planning** is the norm.
+:::
+
+---
+
+## Co-funding vs. preventive maintenance
+
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Donor_Governance_Maintenance.png){width="72%" fig-align="center"}
+
+::: {.callout-note appearance="minimal"}
+**Interpretation** — Number of shared funders (x-axis) vs. facility self-reported preventive maintenance practice (y-axis, from "Never" to "Routinely"). The trend line tests whether integrated co-funding corresponds to better maintenance culture. A positive association here would suggest that donors who coordinate across asset types also promote or require better maintenance practices.
+:::
+
+---
+
+## Funding alignment (Jaccard similarity)
+
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Donor_Governance_Jaccard.png){width="90%" fig-align="center"}
+
+::: {.callout-note appearance="minimal"}
+**Interpretation** — Jaccard similarity measures the overlap between a facility's energy funders and device funders (intersection / union). **Left:** higher Jaccard → lower device non-functionality; **Right:** higher Jaccard → better preventive maintenance. Together, these panels suggest that **funding coherence** (same donors across asset types) is associated with better outcomes on both dimensions.
+:::
+
+---
+
+# Funder Fragmentation {background-color="#1a3a5c" style="color: white; text-align: center;"}
+
+*Does having many different energy funders lead to worse system functionality?*
+
+---
+
+## Funder fragmentation bar chart
+
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Fragmentation_Bar_Chart.png){width="62%" fig-align="center"}
+
+::: {.callout-note appearance="minimal"}
+**Interpretation** — Facilities ordered by Simpson funder diversity (most fragmented at top). The breadth of the legend — up to 26 distinct funding organisations — is itself a key finding. The DHO must theoretically maintain familiarity with 26 different donors' preferred equipment specifications and spare-parts chains. **Facility S** (bottom, single funder) has 0% non-functionality; **Facility E** (top) has among the highest.
+:::
+
+---
+
+## Fragmentation scatter plots
+
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Fragmentation_Scatter.png){width="60%" fig-align="center"}
+
+::: {.callout-note appearance="minimal"}
+**Interpretation** — Top: Simpson funder diversity vs. proportion non-functional; Bottom: number of distinct funders vs. non-functionality (more x-axis spread, more legible). **Facility J** sits well above the trend line (~65% non-functional); **Facility S** anchors the lower-left (1 funder, 0% non-functional). Regional pattern (North/South) does not explain the trend.
+:::
+
+---
+
+## Statistical results: fragmentation vs. non-functionality
+
+:::: {.columns}
+::: {.column width="50%"}
+**Spearman correlations (n = 20)**
+
+| Measure | ρ | p |
+|---|---|---|
+| Simpson funder diversity | **0.686** | **0.001** |
+| Number of distinct funders | **0.685** | **0.001** |
+| Simpson manufacturer diversity | **0.659** | **0.002** |
+
+All three operationalisations of fragmentation yield statistically robust results (p < 0.01, survives Bonferroni correction).
+:::
+::: {.column width="50%"}
+**Robustness checks**
+
+**Sensitivity (excl. Facility J, n = 19)**
+
+| Measure | ρ | p |
+|---|---|---|
+| Simpson funder diversity | 0.647 | 0.004 |
+| Number of distinct funders | 0.659 | 0.003 |
+
+→ The finding is **not an artefact of a single outlier**
+
+**Age-adjusted partial correlation**
+
+| Measure | partial r | p |
+|---|---|---|
+| Simpson funder diversity | 0.703 | 0.001 |
+| Number of distinct funders | 0.681 | 0.001 |
+
+→ Fragmentation predicts non-functionality **independently of system age**
+:::
+::::
+
+---
+
+## Key takeaway: fragmentation
+
+::: {.callout-important}
+**Main finding** — Funder fragmentation is a significant, robust, and age-independent predictor of energy system non-functionality in Malawian health facilities (ρ ≈ 0.69, p = 0.001; partial r ≈ 0.70 after age adjustment).
+
+Roughly **47% of the rank variance** in non-functionality is explained by funder fragmentation alone (ρ²), which is substantial for n = 20.
+:::
+
+**Caveats for reporting:**
+
+- n = 20 → results are **exploratory and hypothesis-generating**, not confirmatory
+- Facility J remains an **influential point** warranting qualitative investigation
+- Manufacturer diversity adds little beyond funder count (near-ceiling clustering) and may be **dropped from the final figure**
+
+---
+
+# Maintenance Effectiveness {background-color="#1a3a5c" style="color: white; text-align: center;"}
+
+*Does preventive maintenance predict energy system and device functionality?*
+
+---
+
+## Energy systems: maintenance vs. functionality
+
+:::: {.columns}
+::: {.column width="55%"}
+**Four sub-analyses (energy systems)**
+
+1. **PM frequency vs. % functional** (facility-level, coloured by mean system age)
+   — Does routine maintenance correlate with higher functionality rates?
+
+2. **PM vs. functionality** (system-level, coloured by individual system age)
+   — Finer-grained view: does each maintained system last longer?
+
+3. **Maintenance party vs. functionality** (stacked bar)
+   — Are DHO-maintained vs. donor-maintained systems more functional?
+
+4. **System longevity by PM level & status** (age distribution)
+   — Do routinely maintained systems have older functional systems on average?
+:::
+::: {.column width="45%"}
+**Research question**
+
+The energy dashboard distinguishes between:
+
+- `maintenance_by`: who is nominally responsible for maintenance (DHO vs. donor)
+- `pm_score`: actual reported preventive maintenance frequency (never / sometimes / routinely)
+
+**Key tension:** In many facilities, the DHO is responsible for maintaining donor-installed systems — but without spare parts budgets or technical training from those donors. This analysis quantifies whether that accountability gap translates into measurable functionality differences.
+:::
+::::
+
+---
+
+## Medical devices: maintenance vs. functionality
+
+:::: {.columns}
+::: {.column width="55%"}
+**Four parallel sub-analyses (medical devices)**
+
+1. **PM frequency vs. % functional devices** (facility-level, coloured by mean device age)
+
+2. **PM vs. functionality** (device-level, coloured by device age)
+
+3. **Maintenance party vs. functionality** (stacked bar by device category)
+   — *Planned: add facet to existing figure (Fig. 3.15)*
+
+4. **Device longevity by PM level & status**
+   — Are routinely maintained devices older on average (i.e., do they last longer)?
+:::
+::: {.column width="45%"}
+**Why this matters**
+
+The medical device dataset distinguishes:
+
+- **Donor-funded, DHO-maintained** assets → the most common and most problematic category
+- **Government-funded, DHO-maintained** assets → baseline accountability
+
+**Planned extension:** For every device category (cold chain, diagnostics, therapeutic, ICT), compute the share that is donor-funded but government-maintained, and compare across categories to identify where the accountability gap is most acute.
+:::
+::::
+
+---
+
+# Combined: Energy ↔ Device Links {background-color="#1a3a5c" style="color: white; text-align: center;"}
+
+*Further cross-dataset analyses enabled by the joint dataset*
+
+---
+
+## Additional cross-dataset plots
+
+:::: {.columns}
+::: {.column width="50%"}
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Cross_Nights_Darkness_vs_Device_Dysfunctionality.png){width="100%"}
+
+**Nights without light → device dysfunction**
+Does unreliable power directly drive device failure? This links energy outage data to device dysfunction rates.
+:::
+::: {.column width="50%"}
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Cross_Powered_Device_Exposure_vs_Energy_Risk.png){width="100%"}
+
+**Powered device exposure vs. energy risk**
+Facilities with many power-dependent devices but unreliable energy are at highest risk — this plot surfaces that vulnerability.
+:::
+::::
+
+---
+
+## Further cross-dataset plots
+
+:::: {.columns}
+::: {.column width="50%"}
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Cross_Energy_Diversity_vs_Device_Functionality.png){width="100%"}
+
+**Energy funder diversity → device functionality**
+Tests whether the fragmentation effect on energy systems also predicts device outcomes across the sectoral boundary.
+:::
+::: {.column width="50%"}
+![](https://raw.githubusercontent.com/Global-Health-Engineering/energy-systems-database/main/data/derived_data/plots/energy_and_devices/Cross_Device_Funder_Diversity_vs_Functionality.png){width="100%"}
+
+**Device funder diversity → device functionality**
+Parallel analysis on the device side — does higher device-side fragmentation predict worse device outcomes?
+:::
+::::
+
+---
+
+# Summary {background-color="#1a3a5c" style="color: white; text-align: center;"}
+
+---
+
+## Key findings across all analyses
+
+| Analysis | Finding |
+|---|---|
+| **Energy ↔ Device functionality** | Significant positive cross-dataset correlation — outcomes co-vary at facility level |
+| **Funder fragmentation (cross)** | Fragmentation is a facility-level structural trait spanning both datasets |
+| **Investment timing** | Energy infrastructure tends to precede device delivery, but timing alone doesn't predict outcomes |
+| **Donor governance (Jaccard)** | Higher funder overlap across energy & devices → lower non-functionality, better maintenance |
+| **Fragmentation (energy)** | ρ ≈ 0.69 (p = 0.001), robust to outlier exclusion and age adjustment |
+| **Maintenance effectiveness** | PM frequency and accountability structure predict both energy and device functionality |
+| **Nights without light** | Energy outage exposure associated with higher device dysfunction rates |
+
+---
+
+## Next steps
+
+:::: {.columns}
+::: {.column width="50%"}
+**Short-term (within current analyses)**
+
+- [ ] Finalise maintenance effectiveness write-up (energy + devices)
+- [ ] Add maintenance party facet to device figure 3.15
+- [ ] Drop manufacturer diversity panel from fragmentation figure (near-ceiling)
+- [ ] Qualitative follow-up on Facility J (outlier)
+:::
+::: {.column width="50%"}
+**Future analyses (from Notion ideas list)**
+
+- **Capacity sizing** — Are systems undersized / oversized relative to literature norms?
+- **Dysfunction cause taxonomy** — Which component failures are most common?
+- **Remote monitoring** — Do monitored systems have better functionality rates?
+- **GSR Index vs. energy quality** — Regress service readiness scores on energy stacking & functionality
+- **Unified maintenance accountability map** — DHO burden index across both asset types
+:::
+::::
+
+---
+
+## Reporting framing (fragmentation)
+
+::: {.callout-note}
+**Suggested text for publication:**
+
+*"Spearman rank correlations between funder fragmentation and the proportion of non-functional energy systems were moderate-to-strong (Simpson index: ρ = 0.69, p = 0.001; distinct funder count: ρ = 0.69, p = 0.001; n = 20 facilities). The relationship was robust to exclusion of the highest-leverage facility (ρ = 0.65–0.66, p < 0.01) and to adjustment for mean system installation year (partial r = 0.68–0.70, p = 0.001), suggesting that fragmentation is an independent predictor of non-functionality rather than a proxy for system age."*
+:::
+
+---
+
+::: {.center style="font-size: 1.4em; margin-top: 2em;"}
+**Thank you**
+
+*Questions & discussion*
+
+---
+
+Data: energy-systems-database + med-dev-database
+Analysis: Quarto dashboard, R (tidyverse, ggplot2, broom)
+Plots: github.com/Global-Health-Engineering/energy-systems-database
+:::

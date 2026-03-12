@@ -1,0 +1,99 @@
+/* ETH-inspired clean theme for supervisor presentation */
+
+:root {
+  --eth-blue: #1a3a5c;
+  --eth-light: #d6e4f0;
+  --eth-accent: #007a99;
+}
+
+/* Section title slides */
+.reveal section[data-background-color="#1a3a5c"] h1 {
+  color: white !important;
+  font-size: 2em;
+}
+
+/* Slide headings */
+.reveal h2 {
+  color: var(--eth-blue);
+  font-size: 1.3em;
+  border-bottom: 2px solid var(--eth-light);
+  padding-bottom: 0.2em;
+  margin-bottom: 0.6em;
+}
+
+.reveal h1 {
+  font-size: 1.8em;
+}
+
+/* Tables */
+.reveal table {
+  font-size: 0.75em;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.reveal table th {
+  background-color: var(--eth-blue);
+  color: white;
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.reveal table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.reveal table tr:nth-child(even) td {
+  background-color: #f5f9fc;
+}
+
+/* Callout boxes */
+.reveal .callout {
+  font-size: 0.78em;
+  margin-top: 0.6em;
+}
+
+.reveal .callout-note {
+  border-left-color: var(--eth-accent);
+}
+
+.reveal .callout-important {
+  border-left-color: #c0392b;
+}
+
+/* Columns */
+.reveal .columns {
+  gap: 1.5em;
+}
+
+/* Lists */
+.reveal ul, .reveal ol {
+  font-size: 0.82em;
+  line-height: 1.55;
+}
+
+/* Center class */
+.center {
+  text-align: center;
+}
+
+/* Smaller text utility */
+.small {
+  font-size: 0.75em;
+}
+
+/* Slide number */
+.reveal .slide-number {
+  color: var(--eth-blue);
+  font-size: 0.7em;
+}
+
+/* Progress bar */
+.reveal .progress {
+  background: var(--eth-light);
+}
+
+.reveal .progress span {
+  background: var(--eth-blue);
+}
