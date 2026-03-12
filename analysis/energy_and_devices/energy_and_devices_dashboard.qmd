@@ -17,6 +17,7 @@ library(patchwork)
 library(gt)
 library(ggrepel)
 library(scales)
+library(broom)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 proj_root         <- normalizePath(file.path(getwd(), "../.."))
@@ -95,6 +96,52 @@ devices_fac <- devices_raw |>
 # ── Combined ──────────────────────────────────────────────────────────────────
 combined <- inner_join(energy_fac, devices_fac, by = "facility_id") |>
   arrange(facility_id)
+
+# ── Funder overlap (Donor Governance analysis) ────────────────────────────────
+norm_funder <- function(x) {
+  x_lc <- str_trim(str_to_lower(as.character(x)))
+  case_when(
+    is.na(x) | x_lc == ""                                              ~ NA_character_,
+    x_lc %in% c("moh", "staff", "egpaf", "gov", "government", "dho")  ~ "gov",
+    x_lc %in% c("na", "n/a", "not applicable", "unknown")             ~ NA_character_,
+    TRUE                                                                ~ x_lc
+  )
+}
+
+energy_funder_sets <- energy_raw |>
+  mutate(funder = norm_funder(funding)) |>
+  filter(!is.na(funder)) |>
+  group_by(facility_id) |>
+  summarise(funders_e = list(sort(unique(funder))), .groups = "drop")
+
+device_funder_sets <- devices_raw |>
+  filter(supercategory %in% c("Medical Devices", "ICT & Electronics", "Utilities")) |>
+  mutate(funder = norm_funder(funding_primary)) |>
+  filter(!is.na(funder)) |>
+  group_by(facility_id) |>
+  summarise(funders_d = list(sort(unique(funder))), .groups = "drop")
+
+funder_overlap_wide <- energy_funder_sets |>
+  inner_join(device_funder_sets, by = "facility_id") |>
+  mutate(
+    n_shared     = map2_int(funders_e, funders_d, \(e, d) length(intersect(e, d))),
+    n_union      = map2_int(funders_e, funders_d, \(e, d) length(union(e, d))),
+    n_energy_only = map2_int(funders_e, funders_d, \(e, d) length(setdiff(e, d))),
+    n_device_only = map2_int(funders_e, funders_d, \(e, d) length(setdiff(d, e))),
+    jaccard      = if_else(n_union > 0, n_shared / n_union, NA_real_),
+    is_co_funded = n_shared > 0
+  )
+
+df_gov <- combined |>
+  left_join(
+    funder_overlap_wide |> select(facility_id, n_shared, jaccard, is_co_funded),
+    by = "facility_id"
+  ) |>
+  mutate(
+    prop_energy_nonfunc = 1 - pct_functional,
+    prop_device_nonfunc = pct_dysfunctional
+  ) |>
+  filter(!is.na(n_shared))
 
 # ── Theme ─────────────────────────────────────────────────────────────────────
 eth_blue  <- "#004D80"
@@ -311,4 +358,141 @@ combined |>
     column_labels.border.top.color    = eth_light,
     column_labels.border.bottom.color = eth_light
   )
+```
+
+# Donor Governance
+
+## Row {.tabset}
+
+### Correlation Table
+
+```{r}
+#| title: "Co-funding vs. Outcomes"
+
+cor_gov <- bind_rows(
+  tidy(cor.test(df_gov$n_shared, df_gov$prop_energy_nonfunc, method = "spearman")) |>
+    mutate(measure = "Shared funders (count)", outcome = "Energy non-functionality"),
+  tidy(cor.test(df_gov$n_shared, df_gov$prop_device_nonfunc, method = "spearman")) |>
+    mutate(measure = "Shared funders (count)", outcome = "Device non-functionality"),
+  tidy(cor.test(df_gov$jaccard,  df_gov$prop_energy_nonfunc, method = "spearman")) |>
+    mutate(measure = "Funder overlap (Jaccard)", outcome = "Energy non-functionality"),
+  tidy(cor.test(df_gov$jaccard,  df_gov$prop_device_nonfunc, method = "spearman")) |>
+    mutate(measure = "Funder overlap (Jaccard)", outcome = "Device non-functionality")
+) |>
+  select(measure, outcome, estimate, p.value) |>
+  rename(rho = estimate)
+
+tbl_gov <- cor_gov |>
+  gt() |>
+  fmt_number(columns = c(rho, p.value), decimals = 3) |>
+  cols_label(
+    measure = "Co-funding measure",
+    outcome = "Outcome",
+    rho     = "ρ (Spearman)",
+    p.value = "p-value"
+  ) |>
+  tab_header(
+    title    = "Spearman Correlation: Donor Co-funding vs. Asset Outcomes",
+    subtitle = "Does shared funding across energy systems and devices predict better functionality?"
+  ) |>
+  tab_style(
+    style     = cell_fill(color = "#fff3cd"),
+    locations = cells_body(rows = p.value < 0.05)
+  ) |>
+  opt_stylize(style = 1)
+
+tbl_gov
+gtsave(tbl_gov, file.path(plots_path, "Donor_Governance_Correlation.html"))
+```
+
+### Co-funding vs. Functionality
+
+```{r}
+#| title: "Co-funding vs. Functionality"
+
+plot_gov_scatter <- function(data, y_var, y_lab, title) {
+  ggplot(data, aes(x = n_shared, y = .data[[y_var]],
+                   colour = region, label = facility_name)) +
+    geom_smooth(method = "lm", se = TRUE,
+                colour = "grey40", linetype = "dashed", linewidth = 0.7) +
+    geom_point(size = 4, alpha = 0.8) +
+    geom_text_repel(size = 2.8, max.overlaps = 15, colour = "grey30") +
+    scale_x_continuous(breaks = 0:10) +
+    scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
+    scale_colour_viridis_d(option = "D", name = "Region") +
+    labs(
+      title = title,
+      x     = "Number of shared funders (energy & devices)",
+      y     = y_lab
+    ) +
+    theme_eth()
+}
+
+pg1 <- plot_gov_scatter(
+  df_gov, "prop_energy_nonfunc",
+  "Proportion of energy systems non-functional",
+  "Donor co-funding vs. energy non-functionality"
+)
+
+pg2 <- plot_gov_scatter(
+  df_gov, "prop_device_nonfunc",
+  "Proportion of devices dysfunctional",
+  "Donor co-funding vs. device non-functionality"
+)
+
+p_gov_scatter <- (pg1 / pg2) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
+
+p_gov_scatter
+ggsave(file.path(plots_path, "Donor_Governance_Scatter.png"),
+       p_gov_scatter, width = 10, height = 12)
+```
+
+### Per-facility Funder Profile
+
+```{r}
+#| title: "Per-facility Funder Profile"
+
+fac_levels <- funder_overlap_wide |>
+  left_join(combined |> select(facility_id, facility_name), by = "facility_id") |>
+  arrange(n_shared, n_energy_only) |>
+  pull(facility_name)
+
+funder_profile <- funder_overlap_wide |>
+  left_join(combined |> select(facility_id, facility_name), by = "facility_id") |>
+  select(facility_id, facility_name, n_energy_only, n_shared, n_device_only) |>
+  pivot_longer(
+    cols      = c(n_energy_only, n_shared, n_device_only),
+    names_to  = "category",
+    values_to = "n_funders"
+  ) |>
+  mutate(
+    facility_name = factor(facility_name, levels = fac_levels),
+    category = factor(
+      category,
+      levels = c("n_energy_only", "n_shared", "n_device_only"),
+      labels = c("Energy only", "Shared", "Devices only")
+    )
+  )
+
+p_funder_profile <- ggplot(funder_profile,
+       aes(x = n_funders, y = facility_name, fill = category)) +
+  geom_col(position = "stack") +
+  scale_fill_manual(
+    values = c("Energy only" = eth_light, "Shared" = clr_yes, "Devices only" = clr_part),
+    name   = "Funder type"
+  ) +
+  labs(
+    title    = "Per-facility funder profile: energy vs. device funding",
+    subtitle = "Facilities ordered by number of shared funders (bottom = most integrated)",
+    x        = "Number of distinct funders",
+    y        = NULL
+  ) +
+  theme_eth() +
+  theme(legend.position = "bottom")
+
+p_funder_profile
+ggsave(file.path(plots_path, "Donor_Governance_Funder_Profile.png"),
+       p_funder_profile, width = 9, height = 7)
 ```
