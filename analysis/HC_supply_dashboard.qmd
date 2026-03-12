@@ -1108,7 +1108,7 @@ gtsave(tbl_fragmentation, file.path(plots_path, "Fragmentation.html"))
 ```
 
 ```{r}
-#| title: "Fragmentation Scatter"
+#| output: false
 
 highlight_facilities <- c("Facility J", "Facility S")
 
@@ -1116,7 +1116,7 @@ plot_scatter <- function(data, x_var, x_lab) {
   ggplot(data, aes(x = .data[[x_var]], y = prop_nonfunc,
                    colour = region, label = facility_clean)) +
     geom_point(size = 4, alpha = 0.8) +
-    geom_smooth(method = "lm", se = TRUE,
+    geom_smooth(method = "lm", se = FALSE,
                 colour = "grey40", linetype = "dashed", linewidth = 0.7) +
     geom_text_repel(size = 2.8, max.overlaps = 15) +
     geom_label_repel(
@@ -1142,11 +1142,32 @@ p3 <- plot_scatter(df_analysis, "simpson_mfr",
                    "Manufacturer diversity (Simpson index)")
 
 p_fragmentation_scatter <- (p1 / p2 / p3) +
-plot_layout(guides = "collect") &
-theme(legend.position = "bottom")
-p_fragmentation_scatter
+  plot_layout(guides = "collect") &
+  theme(legend.position = "bottom")
 ggsave(file.path(plots_path, "Fragmentation_Scatter.png"), p_fragmentation_scatter, width = 10, height = 18)
 ```
+
+::: {.panel-tabset}
+
+#### Funder Diversity (Simpson)
+
+```{r}
+p1 + theme(legend.position = "bottom")
+```
+
+#### Number of Funders
+
+```{r}
+p2 + theme(legend.position = "bottom")
+```
+
+#### Manufacturer Diversity (Simpson)
+
+```{r}
+p3 + theme(legend.position = "bottom")
+```
+
+:::
 
 ```{r}
 #| title: "Sensitivity: Excl. Facility J"

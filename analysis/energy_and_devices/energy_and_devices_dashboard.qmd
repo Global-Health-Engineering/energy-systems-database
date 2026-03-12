@@ -197,6 +197,27 @@ simpson_combined_df <- funder_pool |>
 df_gov <- df_gov |>
   left_join(simpson_combined_df, by = "facility_id")
 
+# ── Helpers ───────────────────────────────────────────────────────────────────
+safe_cor <- function(x, y) {
+  d <- data.frame(x, y) |> filter(!is.na(x), !is.na(y))
+  if (nrow(d) < 3) return(tibble(estimate = NA_real_, p.value = NA_real_))
+  tidy(cor.test(d$x, d$y, method = "spearman")) |> select(estimate, p.value)
+}
+
+cor_label <- function(x, y) {
+  d <- data.frame(x, y) |> filter(!is.na(x), !is.na(y))
+  if (nrow(d) < 3) return(NA_character_)
+  r <- cor.test(d$x, d$y, method = "spearman")
+  p_str <- if (r$p.value < 0.001) "p < 0.001" else sprintf("p = %.3f", r$p.value)
+  sprintf("\u03c1 = %+.3f, %s", r$estimate, p_str)
+}
+
+cor_annotate <- function(x, y) {
+  annotate("text", x = Inf, y = Inf, label = cor_label(x, y),
+           hjust = 1.05, vjust = 1.5, size = 3.5,
+           colour = "grey30", fontface = "italic")
+}
+
 # ── Theme ─────────────────────────────────────────────────────────────────────
 eth_blue  <- "#004D80"
 eth_light <- "#0076BA"
@@ -244,14 +265,18 @@ list(icon = "cpu", color = "secondary", value = sum(devices_fac$n_devices_total)
 list(icon = "check-circle", color = "success", value = sum(combined$n_functional >= 1))
 ```
 
-## Row {height="80%"}
+# Cross-Analysis
+
+## Row {.tabset}
+
+### Energy vs. Device Functionality
 
 ```{r}
 #| title: "Energy vs. device functionality"
 
 p_overview <- combined |>
   ggplot(aes(x = pct_functional, y = pct_dev_functional)) +
-  geom_smooth(method = "lm", se = TRUE, colour = eth_blue,
+  geom_smooth(method = "lm", se = FALSE, colour = eth_blue,
               fill = eth_light, alpha = 0.15, linewidth = 0.8) +
   geom_point(aes(size = n_devices_total, colour = pct_functional), alpha = 0.85) +
   geom_text_repel(aes(label = facility_name), size = 3,
@@ -267,46 +292,12 @@ p_overview <- combined |>
     x = "% energy systems fully functional",
     y = "% devices fully functional"
   ) +
+  cor_annotate(combined$pct_functional, combined$pct_dev_functional) +
   theme_eth()
 
 ggsave(file.path(plots_path, "Overview_Energy_vs_Device_Functionality.png"),
        p_overview, width = 10, height = 7)
 p_overview
-```
-
-# Cross-Analysis
-
-## Row {.tabset}
-
-### Energy source diversity vs. device functionality
-
-```{r}
-#| title: "Energy source diversity vs. device functionality"
-
-p_diversity <- combined |>
-  filter(!is.na(simpson_funder_dev)) |>
-  ggplot(aes(x = simpson_funder_dev, y = pct_dev_functional)) +
-  geom_smooth(method = "lm", se = TRUE, colour = eth_blue,
-              fill = eth_light, alpha = 0.15, linewidth = 0.8) +
-  geom_point(aes(colour = pct_functional, size = n_devices_total), alpha = 0.85) +
-  geom_text_repel(aes(label = facility_name), size = 2.8,
-                  colour = "grey35", max.overlaps = 12) +
-  scale_colour_viridis_c(labels = percent, name = "Energy\nfunctionality",
-                         option = "D", direction = 1) +
-  scale_x_continuous(limits = c(0, 1)) +
-  scale_y_continuous(labels = percent, limits = c(0, 1)) +
-  scale_size_continuous(range = c(3, 9), name = "Devices") +
-  labs(
-    title    = "Device funder diversity vs. device functionality",
-    subtitle = "Simpson diversity index of device funders per facility",
-    x = "Device funder diversity (Simpson index)",
-    y = "% devices fully functional"
-  ) +
-  theme_eth()
-
-ggsave(file.path(plots_path, "Cross_Device_Funder_Diversity_vs_Functionality.png"),
-       p_diversity, width = 9, height = 6)
-p_diversity
 ```
 
 ### Funder fragmentation: energy vs. devices
@@ -316,7 +307,7 @@ p_diversity
 
 p_funder_frag <- combined |>
   ggplot(aes(x = n_funders_energy, y = n_funders_devices)) +
-  geom_smooth(method = "lm", se = TRUE, colour = eth_blue,
+  geom_smooth(method = "lm", se = FALSE, colour = eth_blue,
               fill = eth_light, alpha = 0.15, linewidth = 0.8) +
   geom_point(aes(colour = pct_dev_functional, size = n_devices_total), alpha = 0.85) +
   geom_text_repel(aes(label = facility_name), size = 3,
@@ -330,6 +321,7 @@ p_funder_frag <- combined |>
     x = "Number of distinct energy funders",
     y = "Number of distinct device funders"
   ) +
+  cor_annotate(combined$n_funders_energy, combined$n_funders_devices) +
   theme_eth()
 
 ggsave(file.path(plots_path, "Cross_Funder_Fragmentation_Energy_vs_Devices.png"),
@@ -358,12 +350,66 @@ p_age <- combined |>
     subtitle = "Points above the diagonal received devices after energy infrastructure; dashed line = simultaneous",
     x = "Mean installation year of energy systems",
     y = "Mean delivery year of medical devices"
-  ) +
+  ) + {
+    d <- combined |> filter(!is.na(mean_install_year), !is.na(mean_delivery_year))
+    cor_annotate(d$mean_install_year, d$mean_delivery_year)
+  } +
   theme_eth()
 
 ggsave(file.path(plots_path, "Cross_Energy_Age_vs_Device_Delivery_Year.png"),
        p_age, width = 9, height = 6)
 p_age
+```
+
+### Correlation Table
+
+```{r}
+#| title: "Cross-dataset correlations"
+
+cross_pairs <- list(
+  "Energy–Device Link" = list(
+    list(label = "Energy functionality ~ Device functionality",
+         x = combined$pct_functional, y = combined$pct_dev_functional)
+  ),
+  "Funder Structure" = list(
+    list(label = "N energy funders ~ N device funders",
+         x = combined$n_funders_energy, y = combined$n_funders_devices)
+  ),
+  "Investment Timing" = list(
+    list(label = "Mean energy install year ~ Device delivery year",
+         x = combined$mean_install_year, y = combined$mean_delivery_year)
+  )
+)
+
+cor_cross <- purrr::imap_dfr(cross_pairs, function(pairs, group) {
+  purrr::map_dfr(pairs, function(p) {
+    safe_cor(p$x, p$y) |>
+      mutate(outcome = p$label, group = group)
+  })
+}) |>
+  rename(rho = estimate)
+
+tbl_cross <- cor_cross |>
+  select(group, outcome, rho, p.value) |>
+  gt(groupname_col = "group") |>
+  fmt_number(columns = c(rho, p.value), decimals = 3) |>
+  sub_missing(columns = c("rho", "p.value"), missing_text = "—") |>
+  cols_label(
+    outcome = "Variable pair",
+    rho     = "ρ (Spearman)",
+    p.value = "p-value"
+  ) |>
+  tab_header(
+    title    = "Spearman Correlation: Cross-dataset associations",
+    subtitle = "Rows highlighted yellow: p < 0.05"
+  ) |>
+  tab_style(
+    style     = cell_fill(color = "#fff3cd"),
+    locations = cells_body(rows = !is.na(p.value) & p.value < 0.05)
+  ) |>
+  opt_stylize(style = 1)
+
+tbl_cross
 ```
 
 ### Facility summary table
@@ -423,19 +469,10 @@ combined |>
 ```{r}
 #| title: "Co-funding vs. Outcomes"
 
-safe_cor <- function(x, y) {
-  d <- data.frame(x, y) |> filter(!is.na(x), !is.na(y))
-  if (nrow(d) < 3) return(tibble(estimate = NA_real_, p.value = NA_real_))
-  tidy(cor.test(d$x, d$y, method = "spearman")) |> select(estimate, p.value)
-}
-
 outcome_groups <- list(
-  "Functionality"  = c("Energy non-functionality"  = "prop_energy_nonfunc",
-                       "Device non-functionality"   = "prop_device_nonfunc"),
-  "Maintenance"    = c("Repair success rate"        = "pct_repair_success",
-                       "Preventive maintenance"     = "pm_score"),
-  "Age"            = c("Mean energy install year"   = "mean_install_year",
-                       "Mean device delivery year"  = "mean_delivery_year")
+  "Functionality" = c("Energy non-functionality" = "prop_energy_nonfunc",
+                      "Device non-functionality"  = "prop_device_nonfunc"),
+  "Maintenance"   = c("Preventive maintenance"    = "pm_score")
 )
 
 cor_gov <- purrr::imap_dfr(outcome_groups, function(outcomes, group) {
@@ -444,9 +481,7 @@ cor_gov <- purrr::imap_dfr(outcome_groups, function(outcomes, group) {
       safe_cor(df_gov$n_shared,         df_gov[[col]]) |>
         mutate(measure = "Shared funders (count)",       outcome = label, group = group),
       safe_cor(df_gov$jaccard,           df_gov[[col]]) |>
-        mutate(measure = "Funder overlap (Jaccard)",     outcome = label, group = group),
-      safe_cor(df_gov$simpson_combined,  df_gov[[col]]) |>
-        mutate(measure = "Funder fragmentation (Simpson)", outcome = label, group = group)
+        mutate(measure = "Funder overlap (Jaccard)",     outcome = label, group = group)
     )
   })
 }) |>
@@ -475,50 +510,6 @@ tbl_gov <- cor_gov |>
 
 tbl_gov
 gtsave(tbl_gov, file.path(plots_path, "Donor_Governance_Correlation.html"))
-```
-
-### Co-funding vs. Functionality
-
-```{r}
-#| title: "Co-funding vs. Functionality"
-
-plot_gov_scatter <- function(data, y_var, y_lab, title) {
-  ggplot(data, aes(x = n_shared, y = .data[[y_var]],
-                   colour = region, label = facility_name)) +
-    geom_smooth(method = "lm", se = TRUE,
-                colour = "grey40", linetype = "dashed", linewidth = 0.7) +
-    geom_point(size = 4, alpha = 0.8) +
-    geom_text_repel(size = 2.8, max.overlaps = 15, colour = "grey30") +
-    scale_x_continuous(breaks = 0:10) +
-    scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-    scale_colour_viridis_d(option = "D", name = "Region") +
-    labs(
-      title = title,
-      x     = "Number of shared funders (energy & devices)",
-      y     = y_lab
-    ) +
-    theme_eth()
-}
-
-pg1 <- plot_gov_scatter(
-  df_gov, "prop_energy_nonfunc",
-  "Proportion of energy systems non-functional",
-  "Donor co-funding vs. energy non-functionality"
-)
-
-pg2 <- plot_gov_scatter(
-  df_gov, "prop_device_nonfunc",
-  "Proportion of devices dysfunctional",
-  "Donor co-funding vs. device non-functionality"
-)
-
-p_gov_scatter <- (pg1 / pg2) +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom")
-
-p_gov_scatter
-ggsave(file.path(plots_path, "Donor_Governance_Scatter.png"),
-       p_gov_scatter, width = 10, height = 12)
 ```
 
 ### Per-facility Funder Profile
@@ -574,27 +565,10 @@ ggsave(file.path(plots_path, "Donor_Governance_Funder_Profile.png"),
 ```{r}
 #| title: "Co-funding vs. Maintenance"
 
-pm1 <- ggplot(df_gov |> filter(!is.na(pct_repair_success)),
-              aes(x = n_shared, y = pct_repair_success,
-                  colour = region, label = facility_name)) +
-  geom_smooth(method = "lm", se = TRUE,
-              colour = "grey40", linetype = "dashed", linewidth = 0.7) +
-  geom_jitter(size = 4, alpha = 0.8, width = 0.08, height = 0) +
-  geom_text_repel(size = 2.8, max.overlaps = 15, colour = "grey30") +
-  scale_x_continuous(breaks = 0:10) +
-  scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
-  scale_colour_viridis_d(option = "D", name = "Region") +
-  labs(
-    title = "Co-funding vs. energy repair success rate",
-    x     = "Number of shared funders (energy & devices)",
-    y     = "Proportion of repairs successful (energy systems)"
-  ) +
-  theme_eth()
-
 pm2 <- ggplot(df_gov |> filter(!is.na(pm_score)),
               aes(x = n_shared, y = pm_score,
                   colour = region, label = facility_name)) +
-  geom_smooth(method = "lm", se = TRUE,
+  geom_smooth(method = "lm", se = FALSE,
               colour = "grey40", linetype = "dashed", linewidth = 0.7) +
   geom_jitter(size = 4, alpha = 0.8, width = 0.08, height = 0.02) +
   geom_text_repel(size = 2.8, max.overlaps = 15, colour = "grey30") +
@@ -609,68 +583,24 @@ pm2 <- ggplot(df_gov |> filter(!is.na(pm_score)),
     title = "Co-funding vs. preventive maintenance practice",
     x     = "Number of shared funders (energy & devices)",
     y     = "Preventive maintenance (facility self-report)"
-  ) +
+  ) + {
+    d <- df_gov |> filter(!is.na(pm_score))
+    annotate("text", x = Inf, y = 1.1, label = cor_label(d$n_shared, d$pm_score),
+             hjust = 1.05, vjust = 1.5, size = 3.5, colour = "grey30", fontface = "italic")
+  } +
   theme_eth()
 
-p_gov_maint <- (pm1 / pm2) +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom")
+p_gov_maint <- pm2 + theme(legend.position = "bottom")
 
 p_gov_maint
 ggsave(file.path(plots_path, "Donor_Governance_Maintenance.png"),
-       p_gov_maint, width = 10, height = 12)
-```
-
-### Co-funding vs. Age
-
-```{r}
-#| title: "Co-funding vs. System & Device Age"
-
-pa1 <- ggplot(df_gov |> filter(!is.na(mean_install_year)),
-              aes(x = n_shared, y = mean_install_year,
-                  colour = region, label = facility_name)) +
-  geom_smooth(method = "lm", se = TRUE,
-              colour = "grey40", linetype = "dashed", linewidth = 0.7) +
-  geom_point(size = 4, alpha = 0.8) +
-  geom_text_repel(size = 2.8, max.overlaps = 15, colour = "grey30") +
-  scale_x_continuous(breaks = 0:10) +
-  scale_colour_viridis_d(option = "D", name = "Region") +
-  labs(
-    title = "Co-funding vs. mean energy system installation year",
-    x     = "Number of shared funders (energy & devices)",
-    y     = "Mean installation year (energy systems)"
-  ) +
-  theme_eth()
-
-pa2 <- ggplot(df_gov |> filter(!is.na(mean_delivery_year)),
-              aes(x = n_shared, y = mean_delivery_year,
-                  colour = region, label = facility_name)) +
-  geom_smooth(method = "lm", se = TRUE,
-              colour = "grey40", linetype = "dashed", linewidth = 0.7) +
-  geom_point(size = 4, alpha = 0.8) +
-  geom_text_repel(size = 2.8, max.overlaps = 15, colour = "grey30") +
-  scale_x_continuous(breaks = 0:10) +
-  scale_colour_viridis_d(option = "D", name = "Region") +
-  labs(
-    title = "Co-funding vs. mean device delivery year",
-    x     = "Number of shared funders (energy & devices)",
-    y     = "Mean delivery year (medical devices)"
-  ) +
-  theme_eth()
-
-p_gov_age <- (pa1 / pa2) +
-  plot_layout(guides = "collect") &
-  theme(legend.position = "bottom")
-
-p_gov_age
-ggsave(file.path(plots_path, "Donor_Governance_Age.png"),
-       p_gov_age, width = 10, height = 12)
+       p_gov_maint, width = 10, height = 6)
 ```
 
 ### Funding Alignment (Jaccard)
 
 ```{r}
-#| title: "Funding Alignment (Jaccard)"
+#| output: false
 
 # Reusable helper: scatter with continuous x-axis
 plot_gov_cont <- function(data, x_var, x_lab, y_var, y_lab, title,
@@ -678,7 +608,7 @@ plot_gov_cont <- function(data, x_var, x_lab, y_var, y_lab, title,
   p <- ggplot(data |> filter(!is.na(.data[[x_var]]), !is.na(.data[[y_var]])),
               aes(x = .data[[x_var]], y = .data[[y_var]],
                   colour = region, label = facility_name)) +
-    geom_smooth(method = "lm", se = TRUE,
+    geom_smooth(method = "lm", se = FALSE,
                 colour = "grey40", linetype = "dashed", linewidth = 0.7) +
     geom_point(size = 3.5, alpha = 0.8) +
     geom_text_repel(size = 2.6, max.overlaps = 15, colour = "grey30") +
@@ -694,23 +624,15 @@ plot_gov_cont <- function(data, x_var, x_lab, y_var, y_lab, title,
 jac_x  <- "jaccard"
 jac_xl <- "Funder overlap — Jaccard similarity (energy ∩ devices / energy ∪ devices)"
 
-jal1 <- plot_gov_cont(df_gov, jac_x, jac_xl,
-  "prop_energy_nonfunc", "Energy systems non-functional (%)",
-  "Funder alignment vs. energy non-functionality")
-
 jal2 <- plot_gov_cont(df_gov, jac_x, jac_xl,
   "prop_device_nonfunc", "Devices dysfunctional (%)",
-  "Funder alignment vs. device non-functionality")
-
-jal3 <- plot_gov_cont(df_gov |> filter(!is.na(pct_repair_success)),
-  jac_x, jac_xl,
-  "pct_repair_success", "Repairs successful (%)",
-  "Funder alignment vs. energy repair success")
+  "Funder alignment vs. device non-functionality") +
+  cor_annotate(df_gov$jaccard, df_gov$prop_device_nonfunc)
 
 jal4 <- ggplot(df_gov |> filter(!is.na(jaccard), !is.na(pm_score)),
                aes(x = jaccard, y = pm_score, colour = region,
                    label = facility_name)) +
-  geom_smooth(method = "lm", se = TRUE,
+  geom_smooth(method = "lm", se = FALSE,
               colour = "grey40", linetype = "dashed", linewidth = 0.7) +
   geom_jitter(size = 3.5, alpha = 0.8, width = 0.01, height = 0.02) +
   geom_text_repel(size = 2.6, max.overlaps = 15, colour = "grey30") +
@@ -719,79 +641,671 @@ jal4 <- ggplot(df_gov |> filter(!is.na(jaccard), !is.na(pm_score)),
                      limits = c(-0.1, 1.1)) +
   scale_colour_viridis_d(option = "D", name = "Region") +
   labs(title = "Funder alignment vs. preventive maintenance",
-       x = jac_xl, y = "Preventive maintenance") +
+       x = jac_xl, y = "Preventive maintenance") + {
+    d <- df_gov |> filter(!is.na(jaccard), !is.na(pm_score))
+    annotate("text", x = Inf, y = 1.1, label = cor_label(d$jaccard, d$pm_score),
+             hjust = 1.05, vjust = 1.5, size = 3.5, colour = "grey30", fontface = "italic")
+  } +
   theme_eth()
 
-jal5 <- plot_gov_cont(df_gov |> filter(!is.na(mean_install_year)),
-  jac_x, jac_xl,
-  "mean_install_year", "Mean installation year (energy)",
-  "Funder alignment vs. energy system age", y_is_year = TRUE)
-
-jal6 <- plot_gov_cont(df_gov |> filter(!is.na(mean_delivery_year)),
-  jac_x, jac_xl,
-  "mean_delivery_year", "Mean delivery year (devices)",
-  "Funder alignment vs. device age", y_is_year = TRUE)
-
-p_jac <- (jal1 | jal2) / (jal3 | jal4) / (jal5 | jal6) +
+p_jac <- (jal2 | jal4) +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
-
-p_jac
 ggsave(file.path(plots_path, "Donor_Governance_Jaccard.png"),
-       p_jac, width = 14, height = 18)
+       p_jac, width = 14, height = 7)
 ```
 
-### Funder Fragmentation (Simpson)
+::: {.panel-tabset}
+
+#### Device Non-functionality
 
 ```{r}
-#| title: "Funder Fragmentation (Simpson)"
+jal2
+```
 
-sim_x  <- "simpson_combined"
-sim_xl <- "Funder portfolio fragmentation — Simpson diversity (energy + devices pooled)"
+#### Preventive Maintenance
 
-sil1 <- plot_gov_cont(df_gov, sim_x, sim_xl,
-  "prop_energy_nonfunc", "Energy systems non-functional (%)",
-  "Funder fragmentation vs. energy non-functionality")
+```{r}
+jal4
+```
 
-sil2 <- plot_gov_cont(df_gov, sim_x, sim_xl,
-  "prop_device_nonfunc", "Devices dysfunctional (%)",
-  "Funder fragmentation vs. device non-functionality")
+:::
 
-sil3 <- plot_gov_cont(df_gov |> filter(!is.na(pct_repair_success)),
-  sim_x, sim_xl,
-  "pct_repair_success", "Repairs successful (%)",
-  "Funder fragmentation vs. energy repair success")
+# Fragmentation
 
-sil4 <- ggplot(df_gov |> filter(!is.na(simpson_combined), !is.na(pm_score)),
-               aes(x = simpson_combined, y = pm_score, colour = region,
-                   label = facility_name)) +
-  geom_smooth(method = "lm", se = TRUE,
-              colour = "grey40", linetype = "dashed", linewidth = 0.7) +
-  geom_jitter(size = 3.5, alpha = 0.8, width = 0.005, height = 0.02) +
-  geom_text_repel(size = 2.6, max.overlaps = 15, colour = "grey30") +
-  scale_y_continuous(breaks = c(0, 0.5, 1),
-                     labels = c("Never", "Sometimes", "Routinely"),
-                     limits = c(-0.1, 1.1)) +
-  scale_colour_viridis_d(option = "D", name = "Region") +
-  labs(title = "Funder fragmentation vs. preventive maintenance",
-       x = sim_xl, y = "Preventive maintenance") +
-  theme_eth()
+## Row {.tabset}
 
-sil5 <- plot_gov_cont(df_gov |> filter(!is.na(mean_install_year)),
-  sim_x, sim_xl,
-  "mean_install_year", "Mean installation year (energy)",
-  "Funder fragmentation vs. energy system age", y_is_year = TRUE)
+### Data & Correlation Table
 
-sil6 <- plot_gov_cont(df_gov |> filter(!is.na(mean_delivery_year)),
-  sim_x, sim_xl,
-  "mean_delivery_year", "Mean delivery year (devices)",
-  "Funder fragmentation vs. device age", y_is_year = TRUE)
+```{r}
+#| title: "Fragmentation: Correlation Table"
 
-p_sim <- (sil1 | sil2) / (sil3 | sil4) / (sil5 | sil6) +
+# ── Funder diversity (energy systems) ────────────────────────────────────────
+funder_diversity_e <- energy_raw |>
+  mutate(funder = norm_funder(funding)) |>
+  filter(!is.na(funder)) |>
+  group_by(facility_id, funder) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(facility_id) |>
+  mutate(p_i = n / sum(n)) |>
+  summarise(
+    n_systems_frag = sum(n),
+    n_funders_frag = n_distinct(funder),
+    simpson_funder = 1 - sum(p_i^2),
+    .groups = "drop"
+  )
+
+# ── Manufacturer diversity (energy systems) ───────────────────────────────────
+mfr_diversity_e <- energy_raw |>
+  mutate(
+    component_brand = case_when(
+      !is.na(inverter_manufacturer) ~ str_trim(inverter_manufacturer),
+      !is.na(brand)                 ~ str_trim(brand),
+      TRUE                          ~ NA_character_
+    )
+  ) |>
+  filter(!is.na(component_brand),
+         !str_to_lower(component_brand) %in% c("unknown", "n/a", "")) |>
+  group_by(facility_id, component_brand) |>
+  summarise(n = n(), .groups = "drop") |>
+  group_by(facility_id) |>
+  mutate(p_i = n / sum(n)) |>
+  summarise(
+    n_brands    = n_distinct(component_brand),
+    simpson_mfr = 1 - sum(p_i^2),
+    .groups = "drop"
+  )
+
+# ── Non-functionality ratio ───────────────────────────────────────────────────
+func_ratio_e <- energy_raw |>
+  filter(!is.na(functional_now)) |>
+  mutate(
+    is_nonfunctional = case_when(
+      functional_now == "No"        ~ 1,
+      functional_now == "Partially" ~ 0.5,
+      functional_now == "Yes"       ~ 0
+    )
+  ) |>
+  group_by(facility_id) |>
+  summarise(
+    n_systems_total = n(),
+    prop_nonfunc    = mean(is_nonfunctional),
+    .groups = "drop"
+  )
+
+# ── Combined ─────────────────────────────────────────────────────────────────
+df_frag <- funder_diversity_e |>
+  left_join(mfr_diversity_e, by = "facility_id") |>
+  left_join(func_ratio_e,    by = "facility_id") |>
+  left_join(
+    combined |> select(facility_id, facility_name, region, district, mean_install_year),
+    by = "facility_id"
+  )
+
+# ── Spearman correlation table ────────────────────────────────────────────────
+cor_frag <- bind_rows(
+  safe_cor(df_frag$simpson_funder, df_frag$prop_nonfunc) |>
+    mutate(measure = "Simpson funder diversity"),
+  safe_cor(df_frag$n_funders_frag, df_frag$prop_nonfunc) |>
+    mutate(measure = "Number of distinct funders"),
+  safe_cor(df_frag$simpson_mfr,    df_frag$prop_nonfunc) |>
+    mutate(measure = "Simpson manufacturer diversity")
+) |>
+  rename(rho = estimate)
+
+tbl_frag <- cor_frag |>
+  gt() |>
+  fmt_number(columns = c(rho, p.value), decimals = 3) |>
+  sub_missing(columns = c("rho", "p.value"), missing_text = "—") |>
+  cols_label(measure = "Measure", rho = "ρ (Spearman)", p.value = "p-value") |>
+  tab_header(title = "Spearman Correlation: Fragmentation vs. Non-functionality",
+             subtitle = "Rows highlighted yellow: p < 0.05") |>
+  tab_style(
+    style     = cell_fill(color = "#fff3cd"),
+    locations = cells_body(rows = !is.na(p.value) & p.value < 0.05)
+  ) |>
+  opt_stylize(style = 1)
+
+tbl_frag
+gtsave(tbl_frag, file.path(plots_path, "Fragmentation_Correlation.html"))
+```
+
+### Fragmentation Scatter
+
+```{r}
+#| output: false
+
+plot_frag_scatter <- function(data, x_var, x_lab) {
+  ggplot(data, aes(x = .data[[x_var]], y = prop_nonfunc,
+                   colour = region, label = facility_name)) +
+    geom_smooth(method = "lm", se = FALSE,
+                colour = "grey40", linetype = "dashed", linewidth = 0.7) +
+    geom_point(size = 4, alpha = 0.8) +
+    geom_text_repel(size = 2.8, max.overlaps = 15, colour = "grey30") +
+    scale_y_continuous(labels = percent_format(accuracy = 1), limits = c(0, 1)) +
+    scale_colour_viridis_d(option = "D", name = "Region") +
+    labs(x = x_lab, y = "Proportion of non-functional systems") +
+    theme_eth()
+}
+
+df_frag_mfr <- df_frag |> filter(!is.na(simpson_mfr))
+
+pf1 <- plot_frag_scatter(df_frag, "simpson_funder", "Funder diversity (Simpson index)") +
+  cor_annotate(df_frag$simpson_funder, df_frag$prop_nonfunc)
+pf2 <- plot_frag_scatter(df_frag, "n_funders_frag", "Number of distinct funders") +
+  cor_annotate(df_frag$n_funders_frag, df_frag$prop_nonfunc)
+pf3 <- plot_frag_scatter(df_frag_mfr, "simpson_mfr", "Manufacturer diversity (Simpson index)") +
+  cor_annotate(df_frag_mfr$simpson_mfr, df_frag_mfr$prop_nonfunc)
+
+p_frag_scatter <- (pf1 / pf2 / pf3) +
   plot_layout(guides = "collect") &
   theme(legend.position = "bottom")
-
-p_sim
-ggsave(file.path(plots_path, "Donor_Governance_Simpson.png"),
-       p_sim, width = 14, height = 18)
+ggsave(file.path(plots_path, "Fragmentation_Scatter.png"),
+       p_frag_scatter, width = 10, height = 18)
 ```
+
+::: {.panel-tabset}
+
+#### Funder Diversity (Simpson)
+
+```{r}
+pf1 + theme(legend.position = "bottom")
+```
+
+#### Number of Funders
+
+```{r}
+pf2 + theme(legend.position = "bottom")
+```
+
+#### Manufacturer Diversity (Simpson)
+
+```{r}
+pf3 + theme(legend.position = "bottom")
+```
+
+:::
+
+### Sensitivity: Excl. Outlier
+
+```{r}
+#| title: "Sensitivity: Excl. highest non-functionality facility"
+
+outlier_id <- df_frag |>
+  filter(!is.na(prop_nonfunc)) |>
+  slice_max(prop_nonfunc, n = 1) |>
+  pull(facility_id)
+
+outlier_name <- df_frag |>
+  filter(facility_id == outlier_id) |>
+  pull(facility_name)
+
+df_no_out <- df_frag |> filter(facility_id != outlier_id)
+
+cor_sensitivity <- bind_rows(
+  safe_cor(df_no_out$simpson_funder, df_no_out$prop_nonfunc) |>
+    mutate(measure = "Simpson funder diversity"),
+  safe_cor(df_no_out$n_funders_frag, df_no_out$prop_nonfunc) |>
+    mutate(measure = "Number of distinct funders"),
+  safe_cor(df_no_out$simpson_mfr,    df_no_out$prop_nonfunc) |>
+    mutate(measure = "Simpson manufacturer diversity")
+) |>
+  rename(rho = estimate)
+
+tbl_sensitivity <- cor_sensitivity |>
+  gt() |>
+  fmt_number(columns = c(rho, p.value), decimals = 3) |>
+  sub_missing(columns = c("rho", "p.value"), missing_text = "—") |>
+  cols_label(measure = "Measure", rho = "ρ (Spearman)", p.value = "p-value") |>
+  tab_header(
+    title    = glue::glue("Sensitivity: Excluding {outlier_name}"),
+    subtitle = "Checks whether the highest non-functionality facility drives the correlation"
+  ) |>
+  tab_style(
+    style     = cell_fill(color = "#fff3cd"),
+    locations = cells_body(rows = !is.na(p.value) & p.value < 0.05)
+  ) |>
+  opt_stylize(style = 1)
+
+tbl_sensitivity
+```
+
+### Age-Adjusted Correlation
+
+```{r}
+#| title: "Age-Adjusted Correlation"
+
+partial_spearman <- function(x, y, z) {
+  rx <- residuals(lm(rank(x) ~ rank(z)))
+  ry <- residuals(lm(rank(y) ~ rank(z)))
+  cor.test(rx, ry, method = "pearson")
+}
+
+df_age_frag <- df_frag |> filter(!is.na(mean_install_year))
+
+age_results <- bind_rows(
+  tidy(partial_spearman(df_age_frag$simpson_funder, df_age_frag$prop_nonfunc,
+                        df_age_frag$mean_install_year)) |>
+    mutate(measure = "Simpson funder diversity"),
+  tidy(partial_spearman(df_age_frag$n_funders_frag, df_age_frag$prop_nonfunc,
+                        df_age_frag$mean_install_year)) |>
+    mutate(measure = "Number of distinct funders")
+) |>
+  select(measure, estimate, p.value) |>
+  rename(r_partial = estimate)
+
+tbl_age_frag <- age_results |>
+  gt() |>
+  fmt_number(columns = c(r_partial, p.value), decimals = 3) |>
+  sub_missing(columns = c("r_partial", "p.value"), missing_text = "—") |>
+  cols_label(measure = "Measure", r_partial = "Partial r", p.value = "p-value") |>
+  tab_header(
+    title    = "Partial Correlation: Controlling for Mean Installation Year",
+    subtitle = "Tests whether fragmentation predicts non-functionality beyond system age"
+  ) |>
+  tab_style(
+    style     = cell_fill(color = "#fff3cd"),
+    locations = cells_body(rows = !is.na(p.value) & p.value < 0.05)
+  ) |>
+  opt_stylize(style = 1)
+
+tbl_age_frag
+```
+
+### Funder Fragmentation Bar Chart
+
+```{r}
+#| title: "Funder Fragmentation Bar Chart"
+
+df_bar_frag <- energy_raw |>
+  mutate(funder_clean = norm_funder(funding)) |>
+  mutate(funder_clean = replace_na(funder_clean, "Unknown")) |>
+  left_join(
+    df_frag |> select(facility_id, facility_name, simpson_funder),
+    by = "facility_id"
+  ) |>
+  filter(!is.na(simpson_funder)) |>
+  mutate(facility_name = fct_reorder(facility_name, simpson_funder))
+
+p_funder_bar <- ggplot(df_bar_frag,
+       aes(x = facility_name, fill = fct_infreq(funder_clean))) +
+  geom_bar(position = position_stack(reverse = TRUE)) +
+  coord_flip() +
+  scale_fill_viridis_d(option = "H") +
+  labs(
+    title    = "Energy system funder composition per facility",
+    subtitle = "Ordered by funder diversity — most fragmented at top",
+    x        = NULL,
+    y        = "Energy system count",
+    fill     = "Funder"
+  ) +
+  theme_eth() +
+  theme(legend.position = "bottom")
+
+p_funder_bar
+ggsave(file.path(plots_path, "Fragmentation_Bar_Chart.png"),
+       p_funder_bar, width = 10, height = 7)
+```
+
+# Maintenance Effectiveness
+
+## Row {.tabset}
+
+### Energy Systems
+
+```{r}
+#| output: false
+
+# ── Energy: system-level data with maintenance & age ─────────────────────────
+energy_maint <- energy_raw |>
+  mutate(
+    maint_norm = case_when(
+      str_to_lower(str_trim(as.character(maintenance_by))) == "no" ~ "None",
+      str_to_lower(str_trim(as.character(maintenance_by))) == "dho" ~ "DHO/Gov",
+      !is.na(maintenance_by) ~ "Donor/Installer",
+      TRUE ~ NA_character_
+    ),
+    install_yr = suppressWarnings(as.numeric(installation_year)),
+    install_yr = if_else(install_yr > 2000 & install_yr <= 2025,
+                         install_yr, NA_real_),
+    system_age = 2025 - install_yr,
+    func_bin   = case_when(
+      functional_now == "Yes"       ~ "Functional",
+      functional_now == "Partially" ~ "Partial",
+      functional_now == "No"        ~ "Non-functional",
+      TRUE                           ~ NA_character_
+    ),
+    func_bin = factor(func_bin, levels = c("Functional", "Partial", "Non-functional"))
+  ) |>
+  left_join(
+    energy_pm |>
+      mutate(
+        pm_label = case_when(
+          pm_score == 1   ~ "Routinely",
+          pm_score == 0.5 ~ "Sometimes",
+          pm_score == 0   ~ "Never",
+          TRUE             ~ NA_character_
+        ),
+        pm_label = factor(pm_label, levels = c("Never", "Sometimes", "Routinely"))
+      ) |>
+      select(facility_id, pm_score, pm_label),
+    by = "facility_id"
+  )
+
+# ── Facility-level: PM label × energy functionality ───────────────────────────
+e_pm_fac <- energy_pm |>
+  mutate(
+    pm_label = case_when(
+      pm_score == 1   ~ "Routinely",
+      pm_score == 0.5 ~ "Sometimes",
+      pm_score == 0   ~ "Never",
+      TRUE             ~ NA_character_
+    ),
+    pm_label = factor(pm_label, levels = c("Never", "Sometimes", "Routinely"))
+  ) |>
+  inner_join(
+    combined |> select(facility_id, facility_name, pct_functional, region,
+                       mean_install_year),
+    by = "facility_id"
+  ) |>
+  filter(!is.na(pm_label)) |>
+  mutate(mean_fac_age = 2025 - mean_install_year)
+
+# ── E1: PM frequency vs. % functional (facility-level, coloured by mean age) ──
+pe1 <- ggplot(e_pm_fac, aes(x = pm_label, y = pct_functional,
+                              colour = mean_fac_age, label = facility_name)) +
+  geom_boxplot(aes(group = pm_label), outlier.shape = NA,
+               fill = "grey92", colour = "grey60", width = 0.45, alpha = 0.6) +
+  geom_jitter(size = 4, alpha = 0.85, width = 0.12, height = 0) +
+  geom_text_repel(size = 2.8, max.overlaps = 15, colour = "grey30") +
+  scale_y_continuous(labels = percent, limits = c(0, 1.05)) +
+  scale_colour_viridis_c(option = "D", name = "Mean system\nage (yrs)",
+                         direction = -1) +
+  annotate("text", x = Inf, y = Inf,
+           label = cor_label(as.numeric(e_pm_fac$pm_label), e_pm_fac$pct_functional),
+           hjust = 1.05, vjust = 1.5, size = 3.5, colour = "grey30",
+           fontface = "italic") +
+  labs(
+    title    = "Preventive maintenance frequency vs. energy system functionality",
+    subtitle = "Each point = one facility; colour = mean system age",
+    x        = "Preventive maintenance frequency",
+    y        = "% energy systems fully functional"
+  ) +
+  theme_eth()
+
+# ── E1b: PM vs. functionality (system-level, coloured by system age) ──────────
+pe1b <- energy_maint |>
+  filter(!is.na(pm_label), !is.na(func_bin), !is.na(system_age),
+         system_age >= 0, system_age <= 25) |>
+  ggplot(aes(x = pm_label, y = func_bin,
+             colour = system_age)) +
+  geom_jitter(size = 3, alpha = 0.8, width = 0.2, height = 0.18) +
+  scale_colour_viridis_c(option = "D", name = "System age\n(years)",
+                         direction = -1) +
+  scale_y_discrete(limits = rev) +
+  labs(
+    title    = "Preventive maintenance vs. system functionality (system-level)",
+    subtitle = "Each point = one energy system; colour = system age",
+    x        = "Preventive maintenance frequency",
+    y        = "Functional status"
+  ) +
+  theme_eth()
+
+# ── E2: Maintenance party vs. functionality (system-level stacked bar) ─────────
+pe2 <- energy_maint |>
+  filter(!is.na(maint_norm), !is.na(func_bin)) |>
+  count(maint_norm, func_bin) |>
+  group_by(maint_norm) |>
+  mutate(pct = n / sum(n)) |>
+  ungroup() |>
+  ggplot(aes(x = maint_norm, y = pct, fill = func_bin)) +
+  geom_col(position = "stack", width = 0.55) +
+  scale_y_continuous(labels = percent) +
+  scale_fill_manual(
+    values = c("Functional" = clr_yes, "Partial" = clr_part,
+               "Non-functional" = clr_no),
+    name = "Status"
+  ) +
+  labs(
+    title    = "Maintenance responsibility vs. energy system functionality",
+    subtitle = "System-level breakdown by who is responsible for maintenance",
+    x        = "Maintenance party",
+    y        = "Share of energy systems"
+  ) +
+  theme_eth() +
+  theme(legend.position = "bottom")
+
+# ── E3: System age by PM level × functional status ────────────────────────────
+pe3 <- energy_maint |>
+  filter(!is.na(pm_label), !is.na(system_age),
+         system_age >= 0, system_age <= 25,
+         !is.na(func_bin)) |>
+  ggplot(aes(x = pm_label, y = system_age, fill = func_bin)) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.45,
+               position = position_dodge(0.75), width = 0.55) +
+  geom_jitter(aes(colour = func_bin),
+              position = position_jitterdodge(jitter.width = 0.08, dodge.width = 0.75),
+              size = 2.5, alpha = 0.8) +
+  scale_fill_manual(
+    values = c("Functional" = clr_yes, "Partial" = clr_part,
+               "Non-functional" = clr_no),
+    name = "Status"
+  ) +
+  scale_colour_manual(
+    values = c("Functional" = clr_yes, "Partial" = clr_part,
+               "Non-functional" = clr_no),
+    guide = "none"
+  ) +
+  labs(
+    title    = "System age by PM frequency and functional status",
+    subtitle = "Do routinely maintained systems remain functional at greater age?",
+    x        = "Preventive maintenance frequency",
+    y        = "System age (years since installation)"
+  ) +
+  theme_eth() +
+  theme(legend.position = "bottom")
+```
+
+::: {.panel-tabset}
+
+#### PM vs. Functionality (Facility)
+
+```{r}
+pe1 + theme(legend.position = "bottom")
+```
+
+#### PM vs. Functionality (System)
+
+```{r}
+pe1b + theme(legend.position = "bottom")
+```
+
+#### Maintenance Party
+
+```{r}
+pe2
+```
+
+#### System Longevity
+
+```{r}
+pe3
+```
+
+:::
+
+### Medical Devices
+
+```{r}
+#| output: false
+
+# ── Devices: device-level maintenance & age data ──────────────────────────────
+devices_maint <- devices_raw |>
+  filter(supercategory %in% c("Medical Devices", "ICT & Electronics", "Utilities")) |>
+  mutate(
+    maint_norm_dev = case_when(
+      maintenance_primary == "DHO/MoH/Govt" ~ "DHO/Gov",
+      maintenance_primary == "unknown"       ~ NA_character_,
+      !is.na(maintenance_primary)             ~ "Donor/Installer",
+      TRUE                                    ~ NA_character_
+    ),
+    deliv_yr   = suppressWarnings(as.numeric(year_delivered)),
+    deliv_yr   = if_else(deliv_yr > 2000 & deliv_yr <= 2025, deliv_yr, NA_real_),
+    device_age = 2025 - deliv_yr,
+    pm_dev     = case_when(
+      has_preventive_maintenance == "Routinely"                   ~ "Routinely",
+      has_preventive_maintenance == "Sometimes but not routinely" ~ "Sometimes",
+      has_preventive_maintenance == "Never"                       ~ "Never",
+      TRUE                                                         ~ NA_character_
+    ),
+    pm_dev   = factor(pm_dev, levels = c("Never", "Sometimes", "Routinely")),
+    func_dev = case_when(
+      functionality == "fully functional"  ~ "Functional",
+      functionality == "partly functional" ~ "Partial",
+      functionality == "dysfunctional"     ~ "Non-functional",
+      TRUE                                  ~ NA_character_
+    ),
+    func_dev = factor(func_dev, levels = c("Functional", "Partial", "Non-functional"))
+  )
+
+# ── Facility-level: dominant PM × device functionality ────────────────────────
+dev_pm_fac <- devices_maint |>
+  group_by(facility_id) |>
+  summarise(
+    pm_dominant = {
+      vals <- pm_dev[!is.na(pm_dev)]
+      if (length(vals) == 0) NA_character_
+      else as.character(names(sort(table(vals), decreasing = TRUE))[1])
+    },
+    pct_dev_func  = mean(functionality == "fully functional", na.rm = TRUE),
+    mean_dev_age  = mean(device_age[!is.na(device_age) & device_age >= 0 &
+                                      device_age <= 20], na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(
+    pm_dominant = factor(pm_dominant, levels = c("Never", "Sometimes", "Routinely"))
+  ) |>
+  left_join(combined |> select(facility_id, facility_name, region),
+            by = "facility_id") |>
+  filter(!is.na(pm_dominant))
+
+# ── D1: PM frequency vs. % functional devices (facility-level, coloured by mean age) ─
+pd1 <- ggplot(dev_pm_fac, aes(x = pm_dominant, y = pct_dev_func,
+                                colour = mean_dev_age, label = facility_name)) +
+  geom_boxplot(aes(group = pm_dominant), outlier.shape = NA,
+               fill = "grey92", colour = "grey60", width = 0.45, alpha = 0.6) +
+  geom_jitter(size = 4, alpha = 0.85, width = 0.12, height = 0) +
+  geom_text_repel(size = 2.8, max.overlaps = 15, colour = "grey30") +
+  scale_y_continuous(labels = percent, limits = c(0, 1.05)) +
+  scale_colour_viridis_c(option = "D", name = "Mean device\nage (yrs)",
+                         direction = -1) +
+  annotate("text", x = Inf, y = Inf,
+           label = cor_label(as.numeric(dev_pm_fac$pm_dominant),
+                             dev_pm_fac$pct_dev_func),
+           hjust = 1.05, vjust = 1.5, size = 3.5, colour = "grey30",
+           fontface = "italic") +
+  labs(
+    title    = "Preventive maintenance frequency vs. device functionality",
+    subtitle = "Each point = one facility; colour = mean device age",
+    x        = "Preventive maintenance frequency (dominant at facility)",
+    y        = "% devices fully functional"
+  ) +
+  theme_eth()
+
+# ── D1b: PM vs. functionality (device-level, coloured by device age) ──────────
+pd1b <- devices_maint |>
+  filter(!is.na(pm_dev), !is.na(func_dev), !is.na(device_age),
+         device_age >= 0, device_age <= 20) |>
+  ggplot(aes(x = pm_dev, y = func_dev, colour = device_age)) +
+  geom_jitter(size = 1.8, alpha = 0.55, width = 0.2, height = 0.18) +
+  scale_colour_viridis_c(option = "D", name = "Device age\n(years)",
+                         direction = -1) +
+  scale_y_discrete(limits = rev) +
+  labs(
+    title    = "Preventive maintenance vs. device functionality (device-level)",
+    subtitle = "Each point = one device; colour = device age",
+    x        = "Preventive maintenance frequency",
+    y        = "Functional status"
+  ) +
+  theme_eth()
+
+# ── D2: Maintenance party vs. functionality (device-level stacked bar) ─────────
+pd2 <- devices_maint |>
+  filter(!is.na(maint_norm_dev), !is.na(func_dev)) |>
+  count(maint_norm_dev, func_dev) |>
+  group_by(maint_norm_dev) |>
+  mutate(pct = n / sum(n)) |>
+  ungroup() |>
+  ggplot(aes(x = maint_norm_dev, y = pct, fill = func_dev)) +
+  geom_col(position = "stack", width = 0.55) +
+  scale_y_continuous(labels = percent) +
+  scale_fill_manual(
+    values = c("Functional" = clr_yes, "Partial" = clr_part,
+               "Non-functional" = clr_no),
+    name = "Status"
+  ) +
+  labs(
+    title    = "Maintenance responsibility vs. device functionality",
+    subtitle = "Device-level breakdown by who is responsible for maintenance",
+    x        = "Maintenance party",
+    y        = "Share of devices"
+  ) +
+  theme_eth() +
+  theme(legend.position = "bottom")
+
+# ── D3: Device age by PM level × functional status ────────────────────────────
+pd3 <- devices_maint |>
+  filter(!is.na(pm_dev), !is.na(device_age),
+         device_age >= 0, device_age <= 15,
+         func_dev %in% c("Functional", "Non-functional")) |>
+  ggplot(aes(x = pm_dev, y = device_age, fill = func_dev)) +
+  geom_violin(alpha = 0.35, position = position_dodge(0.8), width = 0.7,
+              draw_quantiles = 0.5) +
+  geom_jitter(aes(colour = func_dev),
+              position = position_jitterdodge(jitter.width = 0.07, dodge.width = 0.8),
+              size = 1.2, alpha = 0.35) +
+  scale_fill_manual(
+    values = c("Functional" = clr_yes, "Non-functional" = clr_no),
+    name = "Status"
+  ) +
+  scale_colour_manual(
+    values = c("Functional" = clr_yes, "Non-functional" = clr_no),
+    guide  = "none"
+  ) +
+  labs(
+    title    = "Device age by PM frequency and functionality status",
+    subtitle = "Do routinely maintained devices remain functional at greater age?",
+    x        = "Preventive maintenance frequency",
+    y        = "Device age (years since delivery)"
+  ) +
+  theme_eth() +
+  theme(legend.position = "bottom")
+```
+
+::: {.panel-tabset}
+
+#### PM vs. Functionality (Facility)
+
+```{r}
+pd1 + theme(legend.position = "bottom")
+```
+
+#### PM vs. Functionality (Device)
+
+```{r}
+pd1b + theme(legend.position = "bottom")
+```
+
+#### Maintenance Party
+
+```{r}
+pd2
+```
+
+#### Device Longevity
+
+```{r}
+pd3
+```
+
+:::
